@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:weather/widgets/hours_card_widget.dart';
 import 'package:weather/widgets/today_weather_detail_widget.dart';
@@ -15,6 +18,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late TextEditingController inputControler;
   late String formatedDate;
+  //api key
+  final String apiKey = 'c88be2fef6c73b774cc2520804b351a';
+  //static latitude and longitude
+  final double lat = 34.5075;
+  final double lon = 71.8986;
+  //Temprature in kelvin
+  final double k = 273.15;
+  //Place name
+  Map<String, dynamic> result = {};
 
   @override
   void initState() {
@@ -23,7 +35,28 @@ class _HomeScreenState extends State<HomeScreen> {
     formatedDate = DateFormat('EEEE, d MMM yyyy').format(date);
     inputControler =
         TextEditingController(); // Search city ke liye controller
+    //apiCall method for fetching data
+    apiCall();
     super.initState();
+  }
+
+  Future<void> apiCall() async {
+    final Uri url = Uri.parse(
+      'https://api.openweathermap.org/data/2.5/weather?lat=34.5075&lon=71.8986&appid=c88be2fef6c73b774bcc2520804b351a',
+    );
+
+    final response = await http.get(url);
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        result = {
+          'Name': data["name"],
+          "Temp": data['main']['temp'],
+          "FeelsLike": data['main']['feels_like'],
+        };
+      });
+    }
   }
 
   @override
@@ -139,14 +172,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        children: const [
+                                        children: [
                                           Icon(
                                             Icons
                                                 .location_on_outlined,
                                           ),
                                           SizedBox(width: 5),
                                           Text(
-                                            'Dargai',
+                                            result["Name"],
                                             style: TextStyle(
                                               fontWeight:
                                                   FontWeight.bold,
@@ -215,8 +248,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             height: 100,
                                           ),
                                           const SizedBox(height: 5),
-                                          const Text(
-                                            "18°C",
+                                          Text(
+                                            '${((result['Temp'] as double) - k).toStringAsFixed(0)}°',
                                             style: TextStyle(
                                               fontWeight:
                                                   FontWeight.bold,
@@ -224,8 +257,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           ),
                                           const SizedBox(height: 5),
-                                          const Text(
-                                            'Feels like 16°',
+                                          Text(
+                                            'Feels like ${((result['FeelsLike'] as double) - k).toStringAsFixed(0)}°',
                                             style: TextStyle(
                                               fontSize: 16,
                                             ),
