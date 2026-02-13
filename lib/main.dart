@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:weather/screens/welcome_screen.dart'; // Sab se pehle WelcomeScreen load hogi
 
 // kColorScheme: Poori app ka color palette yahan define ho raha hai
@@ -17,7 +18,8 @@ final kColorScheme = ThemeData(
 );
 
 // main(): Flutter app ka entry point, jahan se execution shuru hoti hai
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: '.env');
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner:

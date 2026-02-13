@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 void main() async {
@@ -9,7 +10,9 @@ void main() async {
 }
 
 class ApiCall {
-  
+  // Environment variable se API Key utha rahe hain security ke liye
+// Taake code GitHub par jaye to key leak na ho
+  final String apiKey = dotenv.env['apiKey'] ?? "key Not found";
   final double lat = 34.5075;
   final double lon = 71.8986;
   Map<String, dynamic> result = {};

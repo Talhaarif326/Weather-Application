@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:weather/widgets/hours_card_widget.dart';
@@ -18,7 +19,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late TextEditingController inputControler;
   late String formatedDate;
-  //api key
+
+  // Environment variable se API Key utha rahe hain security ke liye
+// Taake code GitHub par jaye to key leak na ho
+  final String apiKey = dotenv.env['apiKey'] ?? "key Not found";
   
   //static latitude and longitude
   final double lat = 34.5075;
