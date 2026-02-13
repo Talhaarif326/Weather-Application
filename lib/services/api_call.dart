@@ -9,7 +9,7 @@ void main() async {
 }
 
 class ApiCall {
-  final String apiKey = 'c88be2fef6c73b774cc2520804b351a';
+  
   final double lat = 34.5075;
   final double lon = 71.8986;
   Map<String, dynamic> result = {};

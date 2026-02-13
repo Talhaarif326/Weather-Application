@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late TextEditingController inputControler;
   late String formatedDate;
   //api key
-  final String apiKey = 'c88be2fef6c73b774cc2520804b351a';
+  
   //static latitude and longitude
   final double lat = 34.5075;
   final double lon = 71.8986;
