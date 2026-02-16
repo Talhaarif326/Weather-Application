@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weather/screens/welcome_screen.dart'; // Sab se pehle WelcomeScreen load hogi
 
 // kColorScheme: Poori app ka color palette yahan define ho raha hai
@@ -21,12 +22,14 @@ final kColorScheme = ThemeData(
 Future<void> main() async {
   await dotenv.load(fileName: '.env');
   runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner:
-          false, // (Tip) Is se top-right corner ka red banner hat jayega
-      theme: kColorScheme, // Upar define kiya gaya theme apply kiya
-      home:
-          const WelcomeScreen(), // App khulte hi sab se pehle WelcomeScreen nazar aayegi
+    ProviderScope(
+      child: MaterialApp(
+        debugShowCheckedModeBanner:
+            false, // (Tip) Is se top-right corner ka red banner hat jayega
+        theme: kColorScheme, // Upar define kiya gaya theme apply kiya
+        home:
+            const WelcomeScreen(), // App khulte hi sab se pehle WelcomeScreen nazar aayegi
+      ),
     ),
   );
 }

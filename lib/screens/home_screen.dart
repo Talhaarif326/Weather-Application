@@ -1,36 +1,25 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:intl/intl.dart';
+import 'package:weather/providers/weather_provider.dart';
 import 'package:weather/widgets/hours_card_widget.dart';
 import 'package:weather/widgets/today_weather_detail_widget.dart';
 
 // HomeScreen: Jahan user ko current weather aur search ki facility milti hai
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.name});
 
   final String name; // Welcome screen se pass kiya gaya user ka naam
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   late TextEditingController inputControler;
   late String formatedDate;
-
-  // Environment variable se API Key utha rahe hain security ke liye
-  // Taake code GitHub par jaye to key leak na ho
-  final String apiKey = dotenv.env['apiKey'] ?? "key Not found";
-
-  //static latitude and longitude
-  final double lat = 34.5075;
-  final double lon = 71.8986;
-  //Temprature in kelvin
   final double k = 273.15;
-  //Place name
-  Map<String, dynamic> result = {};
 
   @override
   void initState() {
@@ -40,27 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
     inputControler =
         TextEditingController(); // Search city ke liye controller
     //apiCall method for fetching data
-    apiCall();
+
     super.initState();
-  }
-
-  Future<void> apiCall() async {
-    final Uri url = Uri.parse(
-      'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey',
-    );
-
-    final response = await http.get(url);
-    final data = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      setState(() {
-        result = {
-          'Name': data["name"],
-          "Temp": data['main']['temp'],
-          "FeelsLike": data['main']['feels_like'],
-        };
-      });
-    }
   }
 
   @override
@@ -73,9 +43,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     // Screen ka size lene ke liye MediaQuery ka istemal (Responsiveness ke liye)
     Size size = MediaQuery.of(context).size;
+    final weatherDate = ref.watch(weatherProvider);
 
     return Scaffold(
-      body: result.isEmpty
+      body: weatherDate.isLoading || weatherDate.weatherData.isEmpty
           ? Center(child: CircularProgressIndicator())
           : Stack(
               children: [
@@ -193,7 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ),
                                                 SizedBox(width: 5),
                                                 Text(
-                                                  result["Name"],
+                                                  weatherDate
+                                                      .weatherData['Name'],
                                                   style: TextStyle(
                                                     fontWeight:
                                                         FontWeight
@@ -269,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   height: 5,
                                                 ),
                                                 Text(
-                                                  '${((result['Temp'] as double) - k).toStringAsFixed(0)}°',
+                                                  '${((weatherDate.weatherData['Temp'] as double) - k).toStringAsFixed(0)}°',
                                                   style: TextStyle(
                                                     fontWeight:
                                                         FontWeight
@@ -281,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   height: 5,
                                                 ),
                                                 Text(
-                                                  'Feels like ${((result['FeelsLike'] as double) - k).toStringAsFixed(0)}°',
+                                                  'Feels like ${((weatherDate.weatherData['FeelsLike'] as double) - k).toStringAsFixed(0)}°',
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                   ),
