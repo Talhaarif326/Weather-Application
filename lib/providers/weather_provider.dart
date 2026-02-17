@@ -28,10 +28,11 @@ class Weather extends StateNotifier<WeatherModel> {
 
     try {
       // Reverse Geocoding: Coordinates (lat/lon) ko insani samajh mein aane wale address mein badalna
+
       List<Placemark> places = await placemarkFromCoordinates(
         lat, // Latitude: 34.5075
         lon, // Longitude: 71.8986
-      );
+      ).timeout(Duration(seconds: 5));
 
       // Method aik 'List' return karta hai kyunke aik point ke multiple address formats ho sakte hain.
       // Hum hamesha 'index 0' uthate hain kyunke wo sabse specific aur nazdiki address hota hai.
@@ -65,12 +66,18 @@ class Weather extends StateNotifier<WeatherModel> {
             "FeelsLike":
                 data['current']['feels_like'], // Mehsus hone wala temp
           },
+          hourlyWeather: data['hourly'],
         );
+      } else {
+        state = state.copyWith(isLoading: false);
       }
     } catch (e) {
       // Agar internet nahi hai ya koi aur masla hua to error message save hoga
 
-      state = state.copyWith(errorMessage: e.toString());
+      state = state.copyWith(
+        errorMessage: e.toString(),
+        isLoading: false,
+      );
     }
   }
 }
