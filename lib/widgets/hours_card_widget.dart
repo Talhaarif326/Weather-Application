@@ -47,7 +47,7 @@ class HoursCardWidget extends ConsumerWidget {
 
           // Kelvin temperature ko Celsius mein badal kar round kiya
           String temp =
-              ((hoursWeather.hourlyWeather[index]['temp'] as double) -
+              ((hoursWeather.hourlyWeather[index]['temp']) -
                       273.15)
                   .round()
                   .toString();
