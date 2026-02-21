@@ -19,6 +19,7 @@ class Weather extends StateNotifier<WeatherModel> {
 
   // Static location coordinates (Dargai/Malakand area ke lag bhag)
   final double lat = 34.5075;
+
   final double lon = 71.8986;
 
   // API se data mangwane ka asynchronous function
@@ -67,6 +68,15 @@ class Weather extends StateNotifier<WeatherModel> {
                 data['current']['feels_like'], // Mehsus hone wala temp
           },
           hourlyWeather: data['hourly'],
+          weatherConditions: {
+            "Sunrise": data['current']['sunrise'],
+            "Sunset": data['current']['sunset'],
+            "Humidity": data['current']["humidity"],
+            "uvIndex": data['current']['uvi'],
+            "Visibility": data['current']['visibility'],
+            "Pressure": data['current']['pressure'],
+      
+          },
         );
       } else {
         state = state.copyWith(isLoading: false);

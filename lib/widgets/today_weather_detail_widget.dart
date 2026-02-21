@@ -1,48 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:weather/data/dummydata.dart'; // Weather details ka data source (List of Maps)
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weather/providers/weather_provider.dart'; // Weather details ka data source (List of Maps)
 
 // Stateless widget kyunke ye screen sirf data display kar rahi hai, state change nahi
-class WeatherDetail extends StatelessWidget {
+class WeatherDetail extends ConsumerWidget {
   const WeatherDetail({super.key});
 
+  Map<String, dynamic> _getMetaData(String key , dynamic value) {
+  
+    // Key ko lowercase kar liya taake mismatch na ho
+    switch (key.toLowerCase()) {
+      case 'sunrise':
+        return {
+          'icon': Icons.wb_sunny_rounded,
+          'color': Colors.orangeAccent,
+          'value': '',
+          'unit': '',
+          // Helper for time
+        };
+      case 'sunset':
+        return {
+          'icon': Icons.wb_twilight_rounded,
+          'color': Colors.deepOrange,
+          'unit': '',
+        };
+      case 'humidity':
+        return {
+          'icon': Icons.water_drop,
+          'color': Colors.blue,
+          'unit': '%',
+        };
+      case 'uvindex': // 'uvIndex' becomes 'uvindex' due to .toLowerCase()
+        return {
+          'icon': Icons.wb_sunny,
+          'color': Colors.purple,
+          'unit': '',
+        };
+      case 'visibility':
+        return {
+          'icon': Icons.remove_red_eye,
+          'color': Colors.cyan,
+          'unit': ' km',
+
+          // Meters to KM
+        };
+      case 'pressure':
+        return {
+          'icon': Icons.speed,
+          'color': Colors.grey,
+          'unit': ' hPa',
+        };
+      default:
+        return {
+          'icon': Icons.info_outline,
+          'color': Colors.teal,
+          'unit': '',
+        };
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      // Scrollable view taake agar details zyada hon to screen par fit aa sakein
-      // scrollDirection: Axis.vertical,
-      child: Column(
-        children: [
-          // 'weatherDetails' list par loop chala kar har item ke liye ek card generate ho raha hai
-          for (final item in weatherDetails)
-            InkWell(
-              // Tap karne par ripple effect dene ke liye InkWell
-              splashColor: Colors.grey.withAlpha(100),
-              borderRadius: BorderRadius.circular(20),
-              onTap: () {
-                // Future implementation ke liye empty tap function
-              },
-              child: Card(
-                // Data se background color pick ho raha hai (e.g., UV Index ya Humidity ke liye alag color)
-                color: item['bgColor'],
-                elevation: 0.1,
-                child: Padding(
-                  padding: const EdgeInsets.all(13),
-                  child: Row(
-                    children: [
-                      // Detail se related icon aur uska specific color
-                      Icon(item['icon'], color: item['color']),
-                      SizedBox(width: 10),
-                      // Detail ka title (e.g., "Humidity", "Wind Speed")
-                      Text(item['title']),
-                      Spacer(), // Title aur Value ke darmiyan saari khali jagah pur karne ke liye
-                      // Detail ki actual value (e.g., "60%", "12km/h")
-                      Text(item['value']),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weatherModel = ref.watch(weatherProvider);
+    final weatherConditions = weatherModel.weatherConditions.entries
+        .toList();
+    return SizedBox(
+      height: 350,
+      child: ListView.builder(
+        itemCount: weatherConditions.length,
+        itemBuilder: (context, index) {
+          var entry = weatherConditions[index];
+          var metaData = _getMetaData(entry.key , entry.value);
+          return ListTile(
+            leading: Icon(metaData["icon"] , color:metaData["color"] ,),
+            title: Text(entry.key),
+            trailing: Text(entry.value.toString()),
+          );
+        },
       ),
     );
   }

@@ -24,9 +24,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Current date ko readable format (Day, Date Month Year) mein set karna
     DateTime date = DateTime.now();
     formatedDate = DateFormat('EEEE, d MMM yyyy').format(date);
-    
+
     // Search city functionality ke liye controller initialize kiya
-    inputControler = TextEditingController(); 
+    inputControler = TextEditingController();
 
     super.initState();
   }
@@ -34,7 +34,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void dispose() {
     // Memory leaks se bachne ke liye controller ko dispose karna zaroori hai
-    inputControler.dispose(); 
+    inputControler.dispose();
     super.dispose();
   }
 
@@ -42,17 +42,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     // Screen ka size lene ke liye MediaQuery ka istemal (Responsiveness ke liye)
     Size size = MediaQuery.of(context).size;
-    
+
     // weatherProvider se current state watch karna
     final weatherDate = ref.watch(weatherProvider);
-
     // Agar data load ho raha ho to loading spinner dikhayein
     if (weatherDate.isLoading) {
       return Center(child: CircularProgressIndicator());
     }
-    
+
     // Agar API response khali ho to fallback text dikhayein
-    if (weatherDate.weatherData.isEmpty) {
+    if (weatherDate.currentWeather.isEmpty) {
       return Text('Weather data is empty');
     }
 
@@ -66,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          
+
           // Foreground UI components jo SafeArea ke andar honge
           Positioned(
             child: SafeArea(
@@ -81,7 +80,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       children: [
                         // Header: User Profile, Greeting aur Notification icon
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.center,
                           children: [
                             const CircleAvatar(
                               maxRadius: 30,
@@ -91,7 +91,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                             const SizedBox(width: 15),
                             Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                               children: [
                                 const Text(
                                   'Good Morning!',
@@ -100,7 +101,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   ),
                                 ),
                                 Text(
-                                  widget.name, // Displaying user name from constructor
+                                  widget
+                                      .name, // Displaying user name from constructor
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -119,9 +121,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         // Search Bar aur Current Location display section
                         Row(
                           children: [
@@ -134,9 +136,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     206,
                                     202,
                                     202,
-                                    
                                   ),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(
+                                    20,
+                                  ),
                                 ),
                                 padding: const EdgeInsets.all(10),
                                 child: TextField(
@@ -154,24 +157,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               child: Row(
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
-                                          Icon(Icons.location_on_outlined),
+                                          Icon(
+                                            Icons
+                                                .location_on_outlined,
+                                          ),
                                           SizedBox(width: 5),
                                           // API se aya hua shehar ka naam (e.g. Dargai)
                                           Text(
-                                            weatherDate.weatherData['Name'],
+                                            weatherDate
+                                                .currentWeather['Name'],
                                             style: TextStyle(
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight:
+                                                  FontWeight.bold,
                                               fontSize: 18,
                                             ),
                                           ),
                                           // Manual Refresh button to trigger fetchWeather
                                           IconButton(
                                             onPressed: () {
-                                              ref.read(weatherProvider.notifier).fetchWeather();
+                                              ref
+                                                  .read(
+                                                    weatherProvider
+                                                        .notifier,
+                                                  )
+                                                  .fetchWeather();
                                             },
                                             iconSize: 20,
                                             icon: Icon(Icons.refresh),
@@ -193,9 +207,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ],
                         ),
-      
+
                         SizedBox(height: size.height * .02),
-                        
+
                         // Main Weather Card: Temperature aur visual background display
                         Container(
                           height: size.height * .35,
@@ -210,7 +224,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               elevation: 10,
                               shadowColor: Colors.grey,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                                borderRadius: BorderRadius.circular(
+                                  30,
+                                ),
                               ),
                               clipBehavior: Clip.hardEdge,
                               child: Stack(
@@ -225,30 +241,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   // Card ke upar temperature aur feels-like data display
                                   Positioned(
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 15,
-                                      ),
+                                      padding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 15,
+                                          ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           // Weather state ka representation image
                                           Image.asset(
-                                            'assets/images/image1.png', 
+                                            'assets/images/image1.png',
                                             height: 100,
                                           ),
                                           const SizedBox(height: 5),
                                           // Kelvin ko Celsius mein convert karke display kiya
                                           Text(
-                                            '${((weatherDate.weatherData['Temp'] as double) - k).toStringAsFixed(0)}°',
+                                            '${((weatherDate.currentWeather['Temp'] as double) - k).toStringAsFixed(0)}°',
                                             style: TextStyle(
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight:
+                                                  FontWeight.bold,
                                               fontSize: 55,
                                             ),
                                           ),
                                           const SizedBox(height: 5),
                                           // Feels Like temperature calculation
                                           Text(
-                                            'Feels like ${((weatherDate.weatherData['FeelsLike'] as double) - k).toStringAsFixed(0)}°',
+                                            'Feels like ${((weatherDate.currentWeather['FeelsLike'] as double) - k).toStringAsFixed(0)}°',
                                             style: TextStyle(
                                               fontSize: 16,
                                             ),
@@ -262,9 +281,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ),
                         ),
-      
+
                         const SizedBox(height: 10),
-                        
+
                         // Bottom Card: Hourly forecast horizontal list aur extra weather details
                         Card(
                           child: Padding(
