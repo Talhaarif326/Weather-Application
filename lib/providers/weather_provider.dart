@@ -72,10 +72,9 @@ class Weather extends StateNotifier<WeatherModel> {
             "Sunrise": data['current']['sunrise'],
             "Sunset": data['current']['sunset'],
             "Humidity": data['current']["humidity"],
-            "uvIndex": data['current']['uvi'],
+            "ultraviolet": data['current']['uvi'],
             "Visibility": data['current']['visibility'],
             "Pressure": data['current']['pressure'],
-      
           },
         );
       } else {
