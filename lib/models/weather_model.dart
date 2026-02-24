@@ -9,12 +9,14 @@ class WeatherModel {
         false, // UI mein spinner dikhane ya chupane ke liye flag
     this.errorMessage,
     this.weatherConditions = const {},
+    this.weeklyWeather = const []
   });
 
   // Final variables jo state change hone par naye object mein copy hotay hain
   final Map<String, dynamic> currentWeather;
   final List<dynamic>
   hourlyWeather; // Dynamic type list parsing crashes se bachati hai
+  final List<dynamic> weeklyWeather;
   final bool isLoading;
   final String? errorMessage;
   final Map<String, dynamic> weatherConditions;
@@ -23,6 +25,7 @@ class WeatherModel {
   WeatherModel copyWith({
     Map<String, dynamic>? weatherData,
     List<dynamic>? hourlyWeather,
+    List<dynamic>? weeklyWeather,
     bool? isLoading,
     String? errorMessage,
     Map<String, dynamic>? weatherConditions,
@@ -34,6 +37,7 @@ class WeatherModel {
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
       weatherConditions: weatherConditions ?? this.weatherConditions,
+      weeklyWeather: weeklyWeather ?? this.weeklyWeather
     );
   }
 }

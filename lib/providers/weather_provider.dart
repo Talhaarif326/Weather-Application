@@ -76,6 +76,7 @@ class Weather extends StateNotifier<WeatherModel> {
             "Visibility": data['current']['visibility'],
             "Pressure": data['current']['pressure'],
           },
+          weeklyWeather: data['daily']
         );
       } else {
         state = state.copyWith(isLoading: false);

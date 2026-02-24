@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class IconsColorsProvider {
   Map<String, dynamic> getMetaData(String key, dynamic value) {
     final DateTime time = DateTime.fromMillisecondsSinceEpoch(
-      value * 1000,
+      (value as num).toInt() * 1000,
     ).toLocal();
     final String formatedTime = DateFormat('hh:mm a').format(time);
     // Key ko lowercase kar liya taake mismatch na ho
@@ -20,7 +20,6 @@ class IconsColorsProvider {
         };
       case 'sunset':
         return {
-          
           'icon': Icons.wb_twilight_rounded,
           'color': Colors.deepOrange,
           'value': formatedTime,
@@ -53,6 +52,7 @@ class IconsColorsProvider {
         return {
           'icon': Icons.speed,
           'color': Colors.grey,
+          "value": value,
           'unit': ' hPa',
         };
       default:
