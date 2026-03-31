@@ -24,18 +24,11 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   // Agar ye null hai, to koi bhi card expanded nahi hai.
   int? expandedIndex;
   late String formatedDate;
-
-  @override
-  void initState() {
-    // Screen load hote hi aaj ki date ko specific format (e.g., Friday, 12 Feb 2026) mein convert karna
-    DateTime date = DateTime.now();
-    formatedDate = DateFormat('EEEE, d MMM yyyy').format(date);
-
-    super.initState();
-  }
+  final k = 273.15;
 
   @override
   Widget build(BuildContext context) {
+    final cityName = ref.watch(weatherProvider).currentWeather;
     final weeklyWeatherprovider = ref
         .watch(weatherProvider)
         .weeklyWeather;
@@ -55,6 +48,17 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
             physics: BouncingScrollPhysics(),
             itemCount: weeklyWeatherprovider.length,
             itemBuilder: (context, index) {
+              final DateTime
+              dateTime = // Accessing the week day and Time from the Provider
+              DateTime.fromMillisecondsSinceEpoch(
+                weeklyWeatherprovider[index]['dt'] * 1000,
+              ).toLocal();
+
+              formatedDate = DateFormat(
+                //  Formating the achived Date and Day
+                'EEEE, d MMM yyyy',
+              ).format(dateTime);
+
               return Card(
                 child: Padding(
                   padding: const EdgeInsets.all(10),
@@ -68,11 +72,11 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                                 CrossAxisAlignment.start,
                             children: [
                               Row(
-                                children: const [
+                                children: [
                                   Icon(Icons.location_on_outlined),
                                   SizedBox(width: 5),
                                   Text(
-                                    'Dargai', // Hardcoded location, isay aap dynamic kar sakte hain
+                                    cityName['Name'], // dynamically derived city name
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
@@ -93,8 +97,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                       ),
                       Row(
                         children: [
-                          const Text(
-                            '18°', // Current Temp
+                          Text(
+                            "${((weeklyWeatherprovider[index]["temp"]['day'] as double) - k).toStringAsFixed(0)}°",
                             style: TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
@@ -105,7 +109,15 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                             crossAxisAlignment:
                                 CrossAxisAlignment.end,
                             children: [
-                              const Text('clear'), // Weather status
+                              Row(
+                                children: [
+                                  Icon(Icons.add),
+                                  SizedBox(width: 2,),
+                                  Text(
+                                    weeklyWeatherprovider[index]["weather"][0]['description'],
+                                  ),
+                                ],
+                              ), // Weather status
                               Row(
                                 children: [
                                   const Text('18°'),
