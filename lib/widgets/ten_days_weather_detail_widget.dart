@@ -13,8 +13,16 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('day'),
+        Text(
+          'Day',
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 10),
+        
         SizedBox(height: 10),
         GridView.count(
           shrinkWrap: true,
@@ -37,12 +45,17 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
             ),
             WeeklyWeatherCardWidget(
               index: listIndex,
-              weatherConditionName: 'sunrise',
+              weatherConditionName: 'sunset',
             ),
           ],
         ),
         SizedBox(height: 10),
-        Text('night'),
+        Text(
+          'Night',
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         SizedBox(height: 10),
 
         GridView.count(
@@ -54,7 +67,7 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
           children: [
             WeeklyWeatherCardWidget(
               index: listIndex,
-              weatherConditionName: 'sunrise',
+              weatherConditionName: 'moonrise',
             ),
             WeeklyWeatherCardWidget(
               index: listIndex,
@@ -66,7 +79,7 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
             ),
             WeeklyWeatherCardWidget(
               index: listIndex,
-              weatherConditionName: 'sunrise',
+              weatherConditionName: 'moonset',
             ),
           ],
         ),
