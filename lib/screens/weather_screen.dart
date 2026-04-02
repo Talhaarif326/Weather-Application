@@ -59,7 +59,12 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                 'EEEE, d MMM yyyy',
               ).format(dateTime);
 
+              String iconCode =
+                  weeklyWeatherprovider[index]['weather'][0]['icon']
+                      .toString();
+
               return Card(
+                color: const Color.fromARGB(228, 222, 220, 220),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: Column(
@@ -96,6 +101,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                         ],
                       ),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "${((weeklyWeatherprovider[index]["temp"]['day'] as double) - k).toStringAsFixed(0)}°",
@@ -105,14 +111,22 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                             ),
                           ),
                           const Spacer(),
+
                           Column(
                             crossAxisAlignment:
                                 CrossAxisAlignment.end,
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.add),
-                                  SizedBox(width: 2,),
+                                  CircleAvatar(
+                                    maxRadius: 25,
+                                    foregroundImage: NetworkImage(
+                                      'https://openweathermap.org/img/wn/$iconCode@4x.png',
+                                    ),
+                                    backgroundColor:
+                                        Colors.transparent,
+                                  ),
+                                  SizedBox(width: 10),
                                   Text(
                                     weeklyWeatherprovider[index]["weather"][0]['description'],
                                   ),
