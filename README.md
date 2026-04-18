@@ -1,29 +1,38 @@
 <div align="center">
 
-# 🌤️ Weather App
+# 🌤️ Weather Application
 
-> A Flutter weather app with a glassmorphic welcome screen, live OpenWeatherMap data, 24-hour hourly forecast, and a 7-day weekly breakdown.
+> A Flutter weather app with live OpenWeatherMap data, 24-hour hourly forecast, 7-day weekly breakdown, and a glassmorphic UI.
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.10-0175C2?logo=dart&logoColor=white)](https://dart.dev)
 [![Riverpod](https://img.shields.io/badge/State-Riverpod-blueviolet)](https://riverpod.dev)
 [![API](https://img.shields.io/badge/API-OpenWeatherMap-orange)](https://openweathermap.org/api)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey)](https://flutter.dev)
+[![Status](https://img.shields.io/badge/Status-🚧%20In%20Progress-yellow)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[Features](#-features) · [Tech Stack](#️-tech-stack) · [Setup](#-setup) · [Structure](#️-project-structure) · [Contributing](#-contributing)
+[Features](#-implemented-features) · [Planned](#-planned-features) · [Tech Stack](#️-tech-stack) · [Setup](#-setup) · [Structure](#️-project-structure) · [Contributing](#-contributing)
 
 </div>
 
 ---
 
+> ## 🚧 Work in Progress
+>
+> This project is **actively under development** and not yet feature-complete. Core weather functionality is working, but several planned features are still being built. Contributions and feedback are welcome!
+>
+> **Currently stable:** Live weather data · Hourly forecast · 7-day forecast · Glassmorphic UI
+>
+> **In progress:** Geolocation · Search · Dark mode · Unit converter · Caching · Backend
+
+---
+
 ## 📖 Overview
 
-**Weather App** is a Flutter application that delivers real-time weather data for your current location. It opens with a glassmorphic welcome screen where you enter your name, then drops you into a full weather dashboard — current temperature, feels-like, 24-hour hourly forecast, and a 7-day weekly view with expandable day/night details.
+**Weather Application** is a Flutter app that delivers real-time weather data using the **OpenWeatherMap One Call API 3.0**. It features a glassmorphic welcome screen, current temperature readings, a 24-hour horizontal forecast, and an expandable 7-day weekly view with full day/night detail breakdowns.
 
-Data is pulled from the **OpenWeatherMap One Call API 3.0**, with reverse geocoding via the `geocoding` package to automatically resolve your GPS coordinates into a readable city name.
-
-**Built with:** Flutter · Riverpod · OpenWeatherMap API · Geolocator · Geocoding
+State is managed with **Riverpod**, and the API key is handled securely via `flutter_dotenv`.
 
 ---
 
@@ -39,17 +48,33 @@ Data is pulled from the **OpenWeatherMap One Call API 3.0**, with reverse geocod
 
 ---
 
-## ✨ Features
+## ✅ Implemented Features
+
+These features are **built and working**:
 
 - 🪟 **Glassmorphic Welcome Screen** — Frosted glass UI with a name input and blue gradient background
-- 🌡️ **Live Temperature** — Current temp + feels-like, converted from Kelvin to Celsius
-- 📍 **Auto Location Detection** — GPS coordinates resolved to city name via reverse geocoding
-- ⏱️ **24-Hour Hourly Forecast** — Horizontal scrollable cards with dynamic day/night theming and OpenWeatherMap icons
-- 📅 **7-Day Weekly Forecast** — Expandable cards with per-day detail (sunrise, sunset, humidity, UV index, moonrise, moonset)
-- 🌅 **Weather Conditions Panel** — Humidity, UV index, sunrise/sunset, visibility, and pressure — all with icons and units
+- 🌡️ **Live Current Weather** — Real-time temperature, feels-like, and weather condition from OpenWeatherMap
+- ⏱️ **24-Hour Hourly Forecast** — Horizontally scrollable cards with dynamic day/night theming and OpenWeatherMap icons
+- 📅 **7-Day Weekly Forecast** — Expandable cards per day with full detail (sunrise, sunset, humidity, UV index, moonrise, moonset)
+- 🌅 **Weather Conditions Panel** — Humidity, UV index, sunrise/sunset, visibility, pressure — all with icons and units
 - 🔄 **Manual Refresh** — One-tap weather data reload
 - ⚙️ **Settings Screen** — Temperature unit toggle (Celsius/Fahrenheit), notifications switch, weather alerts toggle
 - 📱 **Bottom Navigation** — Clean 3-tab navigation (Home, Weather, Settings)
+- 🔐 **Secure API Key Management** — API key loaded from `.env` via `flutter_dotenv`
+
+---
+
+## 🔮 Planned Features
+
+These are on the roadmap but **not yet implemented**:
+
+- [ ] 📍 **Geolocation / GPS Auto-Detect** — Automatically resolve device GPS to a city name via reverse geocoding *(packages installed, integration in progress)*
+- [ ] 🔍 **City Search** — Search and switch between any city
+- [ ] 🌙 **Dark Mode** — Full dark theme support with theme toggle
+- [ ] 🌡️ **Unit Converter** — In-app toggle between Celsius, Fahrenheit, and Kelvin
+- [ ] 💾 **Response Caching** — Cache last-fetched weather data for offline/slow-network use
+- [ ] 🔔 **Weather Alerts & Notifications** — Push notifications for severe weather alerts
+- [ ] ☁️ **Backend Integration** — User accounts, saved/favorite locations stored in a backend database
 
 ---
 
@@ -61,9 +86,9 @@ Data is pulled from the **OpenWeatherMap One Call API 3.0**, with reverse geocod
 | Dart | ^3.10.4 | Programming Language |
 | flutter_riverpod | ^3.2.1 | State management (StateNotifier) |
 | riverpod | ^3.1.0 | Core Riverpod library |
-| geolocator | ^14.0.2 | Device GPS coordinates |
-| geocoding | ^4.0.0 | Reverse geocoding (lat/lon → city name) |
 | http | ^1.6.0 | OpenWeatherMap API calls |
+| geolocator | ^14.0.2 | Device GPS coordinates *(integration in progress)* |
+| geocoding | ^4.0.0 | Reverse geocoding (lat/lon → city name) *(integration in progress)* |
 | intl | ^0.20.2 | Date & time formatting |
 | flutter_dotenv | ^6.0.0 | API key management via `.env` |
 | cupertino_icons | ^1.0.8 | iOS-style icons |
@@ -95,7 +120,7 @@ flutter pub get
 
 ### Environment Setup
 
-Create a `.env` file in the root of the project:
+Create a `.env` file in the **root** of the project:
 
 ```
 apiKey=YOUR_OPENWEATHERMAP_API_KEY_HERE
@@ -152,7 +177,7 @@ lib/
 
 ## 🤝 Contributing
 
-Contributions are welcome!
+Contributions are welcome — especially for the planned features above!
 
 1. **Fork** the repository
 2. **Create** a branch: `git checkout -b feature/your-feature-name`
@@ -164,12 +189,15 @@ Contributions are welcome!
 
 ## 📝 Changelog
 
-### v1.0.0 — April 2026
-- ✨ Initial release
-- 🪟 Glassmorphic welcome screen with name input
-- 🌡️ Live OpenWeatherMap current + hourly + weekly data
-- 📍 GPS reverse geocoding for automatic city detection
-- ⚙️ Settings screen with unit toggle and notification switches
+### v1.0.0 — April 2026 *(In Progress)*
+- 🚧 Project under active development
+- ✅ Glassmorphic welcome screen with name input
+- ✅ Live OpenWeatherMap current + hourly + 7-day data
+- ✅ 24-hour horizontal forecast with day/night theming
+- ✅ Expandable weekly forecast cards with full weather detail
+- ✅ Settings screen (unit toggle, notification switches)
+- ✅ Secure `.env`-based API key management with `flutter_dotenv`
+- 🔜 Geolocation, search, dark mode, caching, backend — coming soon
 
 ---
 
@@ -188,5 +216,5 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 ---
 
 <div align="center">
-  <sub>Made with ❤️ using Flutter</sub>
+  <sub>🚧 Work in Progress — Made with ❤️ using Flutter</sub>
 </div>
