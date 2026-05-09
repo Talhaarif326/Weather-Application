@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:weather/providers/weather_provider.dart';
+
 import 'package:weather/widgets/hours_card_widget.dart';
 import 'package:weather/widgets/today_weather_detail_widget.dart';
+import 'package:weather/utils/temp_converter.dart';
 
-// HomeScreen: Jahan user ko current weather aur search ki facility milti hai
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.name});
+  final String name;
 
-  final String name; // Welcome screen se pass kiya gaya user ka naam
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
@@ -17,299 +19,434 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late TextEditingController inputControler;
   late String formatedDate;
-  final double k = 273.15; // Kelvin to Celsius conversion constant
+  List<String> _suggestions = [];
+  bool _showSuggestions = false;
 
   @override
   void initState() {
-    // Current date ko readable format (Day, Date Month Year) mein set karna
     DateTime date = DateTime.now();
     formatedDate = DateFormat('EEEE, d MMM yyyy').format(date);
-
-    // Search city functionality ke liye controller initialize kiya
     inputControler = TextEditingController();
-
     super.initState();
   }
 
   @override
   void dispose() {
-    // Memory leaks se bachne ke liye controller ko dispose karna zaroori hai
     inputControler.dispose();
     super.dispose();
   }
 
+  Future<void> _onSearchChanged(String query) async {
+    if (query.length < 2) {
+      setState(() {
+        _suggestions = [];
+        _showSuggestions = false;
+      });
+      return;
+    }
+    final results = await ref
+        .read(weatherProvider.notifier)
+        .getCitySuggestions(query);
+    setState(() {
+      _suggestions = results;
+      _showSuggestions = results.isNotEmpty;
+    });
+  }
+
+  void _onSuggestionTap(String city) {
+    inputControler.clear();
+    setState(() {
+      _suggestions = [];
+      _showSuggestions = false;
+    });
+    FocusScope.of(context).unfocus();
+    ref.read(weatherProvider.notifier).fetchWeatherByCity(city);
+  }
+
+  Widget? _buildOfflineBanner(bool isOffline, DateTime? lastUpdated) {
+    if (!isOffline || lastUpdated == null) return null;
+    final diff = DateTime.now().difference(lastUpdated);
+    final label = diff.inMinutes < 60
+        ? '${diff.inMinutes} min ago'
+        : '${diff.inHours}h ago';
+    return Container(
+      width: double.infinity,
+      color: Colors.orange.shade700,
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      child: Row(
+        children: [
+          const Icon(Icons.wifi_off, color: Colors.white, size: 16),
+          const SizedBox(width: 8),
+          Text(
+            'Offline — Last updated: $label',
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Screen ka size lene ke liye MediaQuery ka istemal (Responsiveness ke liye)
-    Size size = MediaQuery.of(context).size;
-
-    // weatherProvider se current state watch karna
     final weatherDate = ref.watch(weatherProvider);
-    // Agar data load ho raha ho to loading spinner dikhayein
+    final tempUnit = weatherDate.tempUnit;
+
     if (weatherDate.isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
-    // Agar API response khali ho to fallback text dikhayein
-    if (weatherDate.currentWeather.isEmpty) {
-      return Text('Weather data is empty');
-    }
-
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Background Image jo poori screen ko cover karti hai (Wallpaper effect)
-          Positioned.fill(
-            child: Image.network(
-              'https://t3.ftcdn.net/jpg/05/73/34/04/360_F_573340433_8Vd5QU2NI450ri2Q7O2lPHvBsnac0H7w.jpg',
-              fit: BoxFit.cover,
+    if (weatherDate.errorMessage != null) {
+      return Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF4A90E2), Color(0xFF1B3A6B)],
             ),
           ),
-
-          // Foreground UI components jo SafeArea ke andar honge
-          Positioned(
-            child: SafeArea(
-              child: Stack(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 10,
+                  Icon(
+                    Icons.location_off,
+                    size: 60,
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    weatherDate.errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      foregroundColor: Colors.white,
+                      side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.4)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                     ),
-                    child: ListView(
-                      children: [
-                        // Header: User Profile, Greeting aur Notification icon
-                        Row(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.center,
-                          children: [
-                            const CircleAvatar(
-                              maxRadius: 30,
-                              backgroundImage: NetworkImage(
-                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQf9VRGEzTGaYboycgdNeCkUAxN-7GM-IQykGR_UgzxUA&s',
-                              ),
-                            ),
-                            const SizedBox(width: 15),
-                            Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Good Morning!',
-                                  style: TextStyle(
-                                    color: Colors.blueGrey,
-                                  ),
-                                ),
-                                Text(
-                                  widget
-                                      .name, // Displaying user name from constructor
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            // Notification Icon for visual aesthetics
-                            const CircleAvatar(
-                              maxRadius: 30,
-                              backgroundColor: Colors.transparent,
-                              child: Icon(
-                                Icons.notifications,
-                                size: 30,
-                              ),
-                            ),
-                          ],
-                        ),
+                    onPressed: () =>
+                        ref.read(weatherProvider.notifier).fetchWeather(),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Try Again'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
-                        const SizedBox(height: 20),
+    if (weatherDate.currentWeather.isEmpty) {
+      return const Scaffold(
+        body: Center(child: Text('Weather data is empty')),
+      );
+    }
 
-                        // Search Bar aur Current Location display section
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(
-                                    255,
-                                    206,
-                                    202,
-                                    202,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    20,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(10),
-                                child: TextField(
-                                  controller: inputControler,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Search City',
-                                    border: InputBorder.none,
-                                    icon: Icon(Icons.search),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Row(
+    final offlineBanner = _buildOfflineBanner(
+      weatherDate.isOffline,
+      weatherDate.lastUpdated,
+    );
+
+    return Scaffold(
+      body: Container(
+        // Glassmorphism gradient background — works offline
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF4A90E2), Color(0xFF1B3A6B)],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Column(
+                children: [
+                  // Offline banner pinned at top
+                  if (offlineBanner != null) offlineBanner,
+
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final availableHeight = constraints.maxHeight;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 15,
+                            horizontal: 10,
+                          ),
+                          child: ListView(
+                            children: [
+                              // Header row
+                              Row(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.center,
                                 children: [
+                                  // Profile avatar — glass style, offline safe
+                                  CircleAvatar(
+                                    maxRadius: 30,
+                                    backgroundColor:
+                                        Colors.white.withValues(alpha: 0.2),
+                                    child: const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 15),
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons
-                                                .location_on_outlined,
-                                          ),
-                                          SizedBox(width: 5),
-                                          // API se aya hua shehar ka naam (e.g. Dargai)
-                                          Text(
-                                            weatherDate
-                                                .currentWeather['Name'],
-                                            style: TextStyle(
-                                              fontWeight:
-                                                  FontWeight.bold,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                          // Manual Refresh button to trigger fetchWeather
-                                          IconButton(
-                                            onPressed: () {
-                                              ref
-                                                  .read(
-                                                    weatherProvider
-                                                        .notifier,
-                                                  )
-                                                  .fetchWeather();
-                                            },
-                                            iconSize: 20,
-                                            icon: Icon(Icons.refresh),
-                                          ),
-                                        ],
-                                      ),
-                                      // Aaj ki formatted date
                                       Text(
-                                        formatedDate.toString(),
+                                        'Good Morning!',
+                                        style: TextStyle(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.7),
+                                        ),
+                                      ),
+                                      Text(
+                                        widget.name,
                                         style: const TextStyle(
-                                          color: Colors.blueGrey,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
                                         ),
                                       ),
                                     ],
                                   ),
                                   const Spacer(),
+                                  // Notification bell — taps to settings
+                                  CircleAvatar(
+                                    maxRadius: 30,
+                                    backgroundColor:
+                                        Colors.white.withValues(alpha: 0.15),
+                                    child: const Icon(
+                                      Icons.notifications,
+                                      size: 26,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
 
-                        SizedBox(height: size.height * .02),
+                              const SizedBox(height: 20),
 
-                        // Main Weather Card: Temperature aur visual background display
-                        Container(
-                          height: size.height * .35,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          clipBehavior: Clip.hardEdge,
-                          child: InkWell(
-                            onTap: () {},
-                            child: Card(
-                              elevation: 10,
-                              shadowColor: Colors.grey,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  30,
+                              // Search box — glass style
+                              Container(
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
+                                child: TextField(
+                                  controller: inputControler,
+                                  onChanged: _onSearchChanged,
+                                  style: const TextStyle(color: Colors.white),
+                                  onSubmitted: (val) {
+                                    if (val.isNotEmpty) _onSuggestionTap(val);
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: 'Search City',
+                                    border: InputBorder.none,
+                                    icon: Icon(Icons.search,
+                                        color: Colors.white70),
+                                  ),
                                 ),
                               ),
-                              clipBehavior: Clip.hardEdge,
-                              child: Stack(
-                                children: [
-                                  // Card ke andar ki specific background image
-                                  Positioned.fill(
-                                    child: Image.asset(
-                                      'assets/images/backgroundimage4.jpg',
-                                      fit: BoxFit.cover,
+
+                              // Suggestions dropdown
+                              if (_showSuggestions)
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1C3A6A),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.2),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            Colors.black.withValues(alpha: 0.3),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: _suggestions.length,
+                                    itemBuilder: (context, index) => ListTile(
+                                      leading: const Icon(
+                                        Icons.location_on_outlined,
+                                        size: 18,
+                                        color: Colors.white70,
+                                      ),
+                                      title: Text(
+                                        _suggestions[index],
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      onTap: () =>
+                                          _onSuggestionTap(_suggestions[index]),
                                     ),
                                   ),
-                                  // Card ke upar temperature aur feels-like data display
-                                  Positioned(
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 15,
-                                          ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // Weather state ka representation image
-                                          Image.asset(
-                                            'assets/images/image1.png',
-                                            height: 100,
-                                          ),
-                                          const SizedBox(height: 5),
-                                          // Kelvin ko Celsius mein convert karke display kiya
-                                          Text(
-                                            '${((weatherDate.currentWeather['Temp'] as double) - k).toStringAsFixed(0)}°',
-                                            style: TextStyle(
-                                              fontWeight:
-                                                  FontWeight.bold,
-                                              fontSize: 55,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          // Feels Like temperature calculation
-                                          Text(
-                                            'Feels like ${((weatherDate.currentWeather['FeelsLike'] as double) - k).toStringAsFixed(0)}°',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ],
+                                ),
+
+                              const SizedBox(height: 8),
+
+                              // Location row
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.location_on_outlined,
+                                    color: Colors.white70,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    child: Text(
+                                      weatherDate.currentWeather['Name'] ?? '',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.white,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => ref
+                                        .read(weatherProvider.notifier)
+                                        .fetchWeather(),
+                                    iconSize: 20,
+                                    icon: const Icon(Icons.refresh,
+                                        color: Colors.white70),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                        ),
 
-                        const SizedBox(height: 10),
+                              Text(
+                                formatedDate,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                ),
+                              ),
 
-                        // Bottom Card: Hourly forecast horizontal list aur extra weather details
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 2,
-                              vertical: 5,
-                            ),
-                            child: Column(
-                              children: [
-                                // Ghanton ke hisaab se forecast (Custom Horizontal ListView widget)
-                                HoursCardWidget(),
-                                const SizedBox(height: 10),
-                                // Mazeed details (Humidity, Wind Speed, UV Index, etc.)
-                                WeatherDetail(),
-                              ],
-                            ),
+                              SizedBox(height: availableHeight * 0.02),
+
+                              // Main weather card — keeps local asset background
+                              SizedBox(
+                                height: availableHeight * 0.25,
+                                width: double.infinity,
+                                child: Card(
+                                  elevation: 10,
+                                  shadowColor:
+                                      Colors.black.withValues(alpha: 0.4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    side: BorderSide(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.2),
+                                    ),
+                                  ),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: Image.asset(
+                                          'assets/images/backgroundimage4.jpg',
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Image.asset(
+                                              'assets/images/image1.png',
+                                              height: 100,
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              '${TempConverter.convert(weatherDate.currentWeather['Temp'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 55,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              'Feels like ${TempConverter.convert(weatherDate.currentWeather['FeelsLike'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 10),
+
+                              // Bottom glass card: hourly + weather detail
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 2, vertical: 5),
+                                child: Column(
+                                  children: [
+                                    HoursCardWidget(),
+                                    const SizedBox(height: 10),
+                                    WeatherDetail(),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

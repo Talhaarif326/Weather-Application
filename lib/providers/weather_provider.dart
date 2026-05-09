@@ -1,100 +1,299 @@
-import 'dart:convert'; // JSON data ko Map mein badalne ke liye library
-
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // Environment variables (.env) use karne ke liye
-import 'package:flutter_riverpod/legacy.dart'; // Riverpod state management ke liye
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:http/http.dart'
-    as http; // Network calls (API request) karne ke liye
-import 'package:weather/models/weather_model.dart'; // Aapka banaya hua data model
+import 'package:geolocator/geolocator.dart';
 
-// Weather class jo StateNotifier ko extend karti hai taake WeatherModel ki state handle kar sake
+import 'package:http/http.dart' as http;
+import 'package:weather/database/db_helper.dart';
+import 'package:weather/models/weather_model.dart';
+
 class Weather extends StateNotifier<WeatherModel> {
-  // Constructor: Shuru mein loading false rakhta hai aur foran fetchWeather() call karta hai
   Weather() : super(WeatherModel(isLoading: false)) {
     fetchWeather();
   }
 
-  // .env file se API Key nikal raha hai, agar nahi mili to "key Not found" save hoga
-  final String apiKey = dotenv.env['apiKey'] ?? "key Not found";
+  final String apiKey = dotenv.env['apiKey'] ?? 'key Not found';
+  static const int _maxRetries = 3;
+  final DbHelper _db = DbHelper.instance;
 
-  // Static location coordinates (Dargai/Malakand area ke lag bhag)
-  final double lat = 34.5075;
-
-  final double lon = 71.8986;
-
-  // API se data mangwane ka asynchronous function
-  Future<void> fetchWeather() async {
-    // UI ko batane ke liye ke loading shuru ho gayi hai aur purana error khatam kar do
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
+  // Reliable internet check — actually tries to reach a server
+  Future<bool> _hasInternet() async {
     try {
-      // Reverse Geocoding: Coordinates (lat/lon) ko insani samajh mein aane wale address mein badalna
-
-      List<Placemark> places = await placemarkFromCoordinates(
-        lat, // Latitude: 34.5075
-        lon, // Longitude: 71.8986
-      ).timeout(Duration(seconds: 5));
-
-      // Method aik 'List' return karta hai kyunke aik point ke multiple address formats ho sakte hain.
-      // Hum hamesha 'index 0' uthate hain kyunke wo sabse specific aur nazdiki address hota hai.
-      Placemark place = places[0];
-
-      // 'locality' ka matlab hai shehar ka naam (e.g. Dargai ya Malakand).
-      // '??' (Null Safety) use kiya hai taake agar kisi registan ya samundar ke coordinates hon
-      // jahan shehar ka naam na mile, toh app crash hone ki bajaye "unknown city" dikhaye.
-      String cityName = place.locality ?? "unknown city";
-
-      // API ka endpoint URL taiyar ho raha hai coordinates aur key ke saath
-      final Uri url = Uri.parse(
-        'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&exclude={part}&appid=$apiKey',
-      );
-
-      // Internet ke zariye request bhej raha hai aur response ka intezar kar raha hai
-      final response = await http.get(url);
-
-      // String response ko Dart Map (JSON) mein convert kar raha hai
-      final data = jsonDecode(response.body);
-
-      // Agar server ne 200 (Success) bheja hai
-      if (response.statusCode == 200) {
-        // Nayi state assign ho rahi hai: loading band aur weatherData mein values save
-        state = state.copyWith(
-          isLoading: false, // Spinner rokne ke liye
-          weatherData: {
-            'Name': cityName, // Shehar ka naam
-            "Temp":
-                data['current']['temp'], // Temperature (Kelvin mein)
-            "FeelsLike":
-                data['current']['feels_like'], // Mehsus hone wala temp
-          },
-          hourlyWeather: data['hourly'],
-          weatherConditions: {
-            "Sunrise": data['current']['sunrise'],
-            "Sunset": data['current']['sunset'],
-            "Humidity": data['current']["humidity"],
-            "ultraviolet": data['current']['uvi'],
-            "Visibility": data['current']['visibility'],
-            "Pressure": data['current']['pressure'],
-          },
-          weeklyWeather: data['daily']
-        );
-      } else {
-        state = state.copyWith(isLoading: false);
-      }
-    } catch (e) {
-      // Agar internet nahi hai ya koi aur masla hua to error message save hoga
-
-      state = state.copyWith(
-        errorMessage: e.toString(),
-        isLoading: false,
-      );
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 5));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
     }
   }
+
+  Future<void> fetchWeather() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final locationId = await _db.getCurrentLocationId();
+      final online = await _hasInternet();
+
+      if (!online) {
+        final loaded = await _loadFromCache(locationId);
+        if (!loaded) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'No internet connection and no cached data available.',
+          );
+        }
+        return;
+      }
+
+      final position = await _getLiveLocation();
+      await _db.updateCurrentLocation(
+        cityName: 'Current Location',
+        lat: position.latitude,
+        lon: position.longitude,
+      );
+      await _fetchByCoordinates(
+        position.latitude,
+        position.longitude,
+        locationId: locationId,
+      );
+    } catch (e) {
+      final locationId = await _db.getCurrentLocationId();
+      final loaded = await _loadFromCache(locationId, error: e.toString());
+      if (!loaded) {
+        state = state.copyWith(
+          errorMessage: e.toString(),
+          isLoading: false,
+        );
+      }
+    }
+  }
+
+  Future<void> fetchWeatherByCity(String cityName) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final List<Location> locations = await locationFromAddress(cityName)
+          .timeout(const Duration(seconds: 15));
+      if (locations.isEmpty) {
+        state = state.copyWith(isLoading: false, errorMessage: 'City not found.');
+        return;
+      }
+      final lat = locations.first.latitude;
+      final lon = locations.first.longitude;
+      final locationId = await _db.saveLocation(
+        cityName: cityName,
+        lat: lat,
+        lon: lon,
+      );
+      final online = await _hasInternet();
+      if (!online) {
+        await _loadFromCache(locationId);
+        return;
+      }
+      await _fetchByCoordinates(
+        lat,
+        lon,
+        locationId: locationId,
+        overrideCityName: cityName,
+      );
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
+    }
+  }
+
+  Future<void> fetchWeatherByLocationId(
+    int locationId,
+    String cityName,
+    double lat,
+    double lon,
+  ) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final online = await _hasInternet();
+      if (!online) {
+        await _loadFromCache(locationId);
+        return;
+      }
+      await _fetchByCoordinates(
+        lat,
+        lon,
+        locationId: locationId,
+        overrideCityName: cityName,
+      );
+    } catch (e) {
+      await _loadFromCache(locationId, error: e.toString());
+    }
+  }
+
+  Future<void> _fetchByCoordinates(
+    double lat,
+    double lon, {
+    required int locationId,
+    String? overrideCityName,
+  }) async {
+    try {
+      String cityName = overrideCityName ?? 'Unknown City';
+      if (overrideCityName == null) {
+        final List<Placemark> places = await placemarkFromCoordinates(lat, lon)
+            .timeout(const Duration(seconds: 30));
+        cityName = places[0].locality ?? 'Unknown City';
+        await _db.updateCurrentLocation(
+          cityName: cityName,
+          lat: lat,
+          lon: lon,
+        );
+      }
+
+      final Uri url = Uri.parse(
+        'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&appid=$apiKey',
+      );
+      final response = await http.get(url).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Save to cache immediately after successful fetch
+        await _db.cacheWeather(
+          locationId: locationId,
+          data: {'cityName': cityName, 'apiResponse': data},
+        );
+        _applyWeatherData(cityName, data, isOffline: false);
+      } else {
+        // API failed — try cache before showing error
+        final loaded = await _loadFromCache(locationId);
+        if (!loaded) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'Server error: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      // Network error — try cache
+      final loaded = await _loadFromCache(locationId, error: e.toString());
+      if (!loaded) {
+        state = state.copyWith(
+          errorMessage: e.toString(),
+          isLoading: false,
+        );
+      }
+    }
+  }
+
+  Future<bool> _loadFromCache(int locationId, {String? error}) async {
+    try {
+      final cached = await _db.getCachedWeather(locationId);
+      if (cached == null) {
+        if (error != null) {
+          state = state.copyWith(
+            errorMessage: error,
+            isLoading: false,
+          );
+        }
+        return false;
+      }
+      final data = cached['data']['apiResponse'] as Map<String, dynamic>;
+      final cityName = cached['data']['cityName'] as String;
+      final lastUpdated = DateTime.fromMillisecondsSinceEpoch(
+        cached['last_updated'] as int,
+      );
+      _applyWeatherData(cityName, data, isOffline: true, lastUpdated: lastUpdated);
+      return true;
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
+      return false;
+    }
+  }
+
+  void _applyWeatherData(
+    String cityName,
+    Map<String, dynamic> data, {
+    required bool isOffline,
+    DateTime? lastUpdated,
+  }) {
+    state = state.copyWith(
+      isLoading: false,
+      isOffline: isOffline,
+      lastUpdated: lastUpdated ?? DateTime.now(),
+      weatherData: {
+        'Name': cityName,
+        'Temp': (data['current']['temp'] as num).toDouble(),
+        'FeelsLike': (data['current']['feels_like'] as num).toDouble(),
+      },
+      hourlyWeather: data['hourly'] as List<dynamic>,
+      weatherConditions: {
+        'Sunrise': data['current']['sunrise'],
+        'Sunset': data['current']['sunset'],
+        'Humidity': data['current']['humidity'],
+        'ultraviolet': data['current']['uvi'],
+        'Visibility': data['current']['visibility'],
+        'Pressure': data['current']['pressure'],
+      },
+      weeklyWeather: data['daily'] as List<dynamic>,
+      alerts: data['alerts'] ?? [],
+    );
+  }
+
+  Future<List<String>> getCitySuggestions(String query) async {
+    if (query.length < 2) return [];
+    try {
+      final List<Location> locations = await locationFromAddress(query)
+          .timeout(const Duration(seconds: 10));
+      final List<String> suggestions = [];
+      for (var loc in locations.take(5)) {
+        final List<Placemark> places = await placemarkFromCoordinates(
+          loc.latitude,
+          loc.longitude,
+        );
+        if (places.isNotEmpty) {
+          final place = places.first;
+          final name = [place.locality, place.administrativeArea, place.country]
+              .where((e) => e != null && e.isNotEmpty)
+              .join(', ');
+          if (name.isNotEmpty && !suggestions.contains(name)) {
+            suggestions.add(name);
+          }
+        }
+      }
+      return suggestions;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<Position> _getLiveLocation() async {
+    final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) throw Exception('Location services are disabled.');
+
+    for (int attempt = 1; attempt <= _maxRetries; attempt++) {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception('Location permission permanently denied.');
+      }
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        return await Geolocator.getCurrentPosition(
+          locationSettings: AndroidSettings(accuracy: LocationAccuracy.high),
+        );
+      }
+      if (attempt < _maxRetries) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+    throw Exception('Location permission denied after $_maxRetries attempts.');
+  }
+
+  void toggleUnit() {
+    state = state.copyWith(tempUnit: state.tempUnit == 'C' ? 'F' : 'C');
+  }
+
+  Future<void> clearData() async {
+  await _db.clearAll();
+  state = WeatherModel(isLoading: false);
+}
 }
 
-// Global provider jo puri app mein is Weather class ko access karne ki ijazat deta hai
-final weatherProvider = StateNotifierProvider<Weather, WeatherModel>((
-  ref,
-) {
-  return Weather(); // Weather class ka naya instance return karta hai
-});
+final weatherProvider =
+    StateNotifierProvider<Weather, WeatherModel>((ref) => Weather());

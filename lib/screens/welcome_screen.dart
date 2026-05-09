@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:weather/database/db_helper.dart';
 import 'package:weather/screens/main_screen.dart';
 
-// WelcomeScreen: App ka entry point jahan user apna naam enter karta hai
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -10,34 +10,33 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  // inputControler: User ka naam text field se read karne ke liye
   late TextEditingController inputControler;
-  // _formKey: Form validation (empty check) ke liye zaroori hai
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
-    inputControler =
-        TextEditingController(); // Controller ko initialize kiya
+    inputControler = TextEditingController();
     super.initState();
-  }
-
-  // namePassing: User ka naam le kar MainScreen par navigate karne ka function
-  void namePassing(String name) {
-    setState(() {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => MainScreen(name: name),
-        ),
-      );
-    });
   }
 
   @override
   void dispose() {
-    inputControler
-        .dispose(); // Memory leak se bachne ke liye controller ko dispose kiya
+    inputControler.dispose();
     super.dispose();
+  }
+
+  // Save name to DB then navigate — never shows welcome again
+  Future<void> _onLetsGo() async {
+    if (_formKey.currentState!.validate()) {
+      final name = inputControler.text.trim();
+      await DbHelper.instance.saveUser(name); // persisted to SQLite
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MainScreen(name: name),
+        ),
+      );
+    }
   }
 
   @override
@@ -47,13 +46,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         height: double.infinity,
         width: double.infinity,
         decoration: const BoxDecoration(
-          // Background Gradient: Blue theme jo weather app par suit karti hai
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF4A90E2), // Halka Blue (Top)
-              Color.fromARGB(198, 31, 59, 115), // Gehra Blue (Bottom)
+              Color(0xFF4A90E2),
+              Color.fromARGB(198, 31, 59, 115),
             ],
           ),
         ),
@@ -66,7 +64,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Welcome Icon ke niche white glow/shadow effect ka container
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -79,14 +76,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ],
                   ),
                   child: Image.asset(
-                    'assets/images/welcomeScreenIcon.png', // Main Logo
+                    'assets/images/welcomeScreenIcon.png',
                     height: 200,
                   ),
                 ),
 
                 const SizedBox(height: 30),
 
-                // Name Input Field with Glassmorphism Effect
                 Container(
                   width: 280,
                   padding: const EdgeInsets.symmetric(
@@ -94,15 +90,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(
-                      20,
-                    ), // Glass effect opacity
+                    color: Colors.white.withAlpha(20),
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
                       color: Colors.white.withAlpha(30),
                     ),
-                    boxShadow: [
-                      const BoxShadow(
+                    boxShadow: const [
+                      BoxShadow(
                         color: Colors.black12,
                         blurRadius: 10,
                         offset: Offset(0, 5),
@@ -110,7 +104,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ],
                   ),
                   child: Form(
-                    key: _formKey, // Validation key
+                    key: _formKey,
                     child: TextFormField(
                       controller: inputControler,
                       style: const TextStyle(
@@ -126,7 +120,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           color: Colors.white70,
                         ),
                       ),
-                      // Validation: Check karna ke naam empty na ho
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Name is required';
@@ -139,21 +132,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                 const SizedBox(height: 20),
 
-                // "LET'S GO" Custom Button
                 GestureDetector(
-                  onTap: () {
-                    // Agar form valid hai to hi next screen par jao
-                    if (_formKey.currentState!.validate()) {
-                      namePassing(inputControler.text);
-                    }
-                  },
+                  onTap: _onLetsGo, // now async, saves to DB
                   child: Container(
                     width: 200,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(
-                        20,
-                      ), // Glass effect
+                      color: Colors.white.withAlpha(20),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
                         color: Colors.white.withAlpha(30),

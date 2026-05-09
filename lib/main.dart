@@ -1,34 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:weather/screens/welcome_screen.dart'; // Sab se pehle WelcomeScreen load hogi
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:weather/database/db_helper.dart';
+import 'package:weather/screens/welcome_screen.dart';
+import 'package:weather/screens/main_screen.dart';
 
-// kColorScheme: Poori app ka color palette yahan define ho raha hai
-// 'fromSeed' use karne ka faida ye hai ke Flutter khud hi primary aur secondary colors generate kar leta hai
 final kColorScheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
-    seedColor: const Color.fromARGB(
-      255,
-      249,
-      247,
-      247,
-    ), // Base color for the app theme
+    seedColor: const Color(0xFF4A90E2),
+    brightness: Brightness.light, 
   ),
-  // App ki har screen ka default background color
-  scaffoldBackgroundColor: const Color.fromARGB(255, 231, 228, 228),
+  scaffoldBackgroundColor: const Color(0xFF1C2E4A),
+  cardTheme: CardThemeData(
+    color: Colors.white, 
+    elevation: 4,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  ),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    foregroundColor: Colors.white,
+    centerTitle: true,
+    titleTextStyle: TextStyle(
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: Color(0xFF1A2940),
+    selectedItemColor: Color(0xFF4A90E2),
+    unselectedItemColor: Colors.white38,
+  ),
 );
 
-// main(): Flutter app ka entry point, jahan se execution shuru hoti hai
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+    
+
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+
+  const AndroidInitializationSettings androidSettings =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  await flutterLocalNotificationsPlugin.initialize(
+    const InitializationSettings(android: androidSettings),
+  );
+
+  final String? savedName = await DbHelper.instance.getUser();
+
   runApp(
     ProviderScope(
       child: MaterialApp(
-        debugShowCheckedModeBanner:
-            false, // (Tip) Is se top-right corner ka red banner hat jayega
-        theme: kColorScheme, // Upar define kiya gaya theme apply kiya
-        home:
-            const WelcomeScreen(), // App khulte hi sab se pehle WelcomeScreen nazar aayegi
+        debugShowCheckedModeBanner: false,
+        theme: kColorScheme,
+        home: savedName != null
+            ? MainScreen(name: savedName)
+            : const WelcomeScreen(),
       ),
     ),
   );

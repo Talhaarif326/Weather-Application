@@ -3,101 +3,115 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:weather/providers/weather_provider.dart';
-// Hourly weather data (Time, Icon, Temp) yahan se aa raha hai
+import 'package:weather/utils/temp_converter.dart';
 
-// Ye widget har ghante ka weather (Hourly Forecast) dikhane ke liye hai
 class HoursCardWidget extends ConsumerWidget {
   const HoursCardWidget({super.key});
 
   @override
-  build(context, WidgetRef ref) {
-    // Weather provider se data watch kiya ja raha hai
+  Widget build(BuildContext context, WidgetRef ref) {
     final hoursWeather = ref.watch(weatherProvider);
 
-    // Debugging ke liye data console par print kiya
-  
-
-    // Agar data load ho raha ho to spinner dikhayein
     if (hoursWeather.isLoading) {
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     }
 
-    // Agar list khali mile to error message dikhayein
     if (hoursWeather.hourlyWeather.isEmpty) {
-      return Text('No Data present');
+      return const Text(
+        'No Data present',
+        style: TextStyle(color: Colors.white70),
+      );
     }
 
     return SizedBox(
-      height: 120, // Horizontal list ke liye fixed height
+      height: 110,
       child: ListView.builder(
-        scrollDirection: Axis
-            .horizontal, // List ko left-to-right scrollable banaya
-        itemCount: 24, // Agle 24 ghanton ka forecast limit kiya
+        scrollDirection: Axis.horizontal,
+        itemCount: 24,
         itemBuilder: (context, index) {
-          // Unix timestamp ko local DateTime mein badla (seconds to milliseconds)
-          final DateTime dateTime =
-              DateTime.fromMillisecondsSinceEpoch(
-                hoursWeather.hourlyWeather[index]['dt'] * 1000,
-              ).toLocal();
+          final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+            hoursWeather.hourlyWeather[index]['dt'] * 1000,
+          ).toLocal();
 
-          // Time ko "hh:mm AM/PM" format mein convert kiya
-          String formatedDate = DateFormat(
-            'hh:mm a',
-          ).format(dateTime);
+          final String formatedDate = DateFormat('hh:mm a').format(dateTime);
 
-          // Kelvin temperature ko Celsius mein badal kar round kiya
-          String temp =
-              ((hoursWeather.hourlyWeather[index]['temp']) -
-                      273.15)
-                  .round()
-                  .toString();
+          final tempUnit = hoursWeather.tempUnit;
+          final String temp = TempConverter.convert(
+            (hoursWeather.hourlyWeather[index]['temp'] as num).toDouble(),
+            tempUnit,
+          ).round().toString();
 
-          // API se icon ka specific code uthaya (e.g., 01d, 10n)
-          String iconCode = hoursWeather
+          final String iconCode = hoursWeather
               .hourlyWeather[index]['weather'][0]['icon']
               .toString();
 
-          // Background color variable define kiya
-          Color backgroundColor;
+          final bool isNight = iconCode.endsWith('n');
 
-          // Day aur Night ke liye alag alag theme colors set kiye
-          if (iconCode.endsWith('n')) {
-            // Raat ke liye greyish tone
-            backgroundColor = Colors.grey.shade300;
-          } else {
-            // Din ke liye yellowish/orange tone
-            backgroundColor = Colors.orange.shade50;
-          }
+          // Glass card colors matching the theme
+          final Color cardColor = isNight
+              ? Colors.white.withValues(alpha: 0.08)  
+              : Colors.white.withValues(alpha: 0.18); 
 
-          return InkWell(
-            // User tap kare to ripple effect (visual feedback) aaye
-            splashColor: Colors.grey.withAlpha(100),
-            borderRadius: BorderRadius.circular(20),
-            onTap: () {
-              // Future updates ke liye click action
-            },
-            child: Card(
-              // Elevation aur card ki styling
-              elevation: 1,
-              color:
-                  backgroundColor, // Din aur raat ke mutabiq dynamic color
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+          final Color borderColor = isNight
+              ? Colors.white.withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.35);
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: InkWell(
+              splashColor: Colors.white.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {},
+              child: Container(
+                width: 70,
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: borderColor, width: 1),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 8,
+                ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Waqt dikhane ke liye (e.g., 10:00 AM)
-                    Text(formatedDate),
-                    const SizedBox(height: 2),
-                    // Weather ki halat ke mutabiq icon (Image server se load ho rahi hai)
+                    // Time
+                    Text(
+                      formatedDate,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+
+                    // Weather icon
                     Image.network(
                       'https://openweathermap.org/img/wn/$iconCode@2x.png',
-
-                      height: 30,
-                      width: 50,
+                      height: 32,
+                      width: 32,
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        isNight ? Icons.nightlight_round : Icons.wb_sunny,
+                        color: isNight
+                            ? Colors.white60
+                            : Colors.yellow.shade300,
+                        size: 24,
+                      ),
                     ),
-                    const SizedBox(height: 2),
-                    // Us ghante ka temperature degree symbol ke saath
-                    Text("$temp°"),
+                    const SizedBox(height: 4),
+
+                    // Temperature
+                    Text(
+                      '$temp${TempConverter.label(tempUnit)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
