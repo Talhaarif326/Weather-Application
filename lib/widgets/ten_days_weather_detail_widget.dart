@@ -14,22 +14,15 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Divider
-        Divider(color: Colors.white.withValues(alpha: 0.2), height: 1),
-        const SizedBox(height: 10),
-
-        // DAY label
         Text(
-          'DAY',
-          style: TextStyle(
+          'Day',
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.4,
-            fontSize: 11,
-            color: Colors.white.withValues(alpha: 0.6),
           ),
         ),
-        const SizedBox(height: 8),
-
+        SizedBox(height: 10),
+        
+        SizedBox(height: 10),
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -45,23 +38,19 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
             WeeklyWeatherCardWidget(
                 index: listIndex, weatherConditionName: 'uvi'),
             WeeklyWeatherCardWidget(
-                index: listIndex, weatherConditionName: 'sunset'),
+              index: listIndex,
+              weatherConditionName: 'sunset',
+            ),
           ],
         ),
-
-        const SizedBox(height: 12),
-
-        // NIGHT label
+        SizedBox(height: 10),
         Text(
-          'NIGHT',
-          style: TextStyle(
+          'Night',
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.4,
-            fontSize: 11,
-            color: Colors.white.withValues(alpha: 0.6),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 10),
 
         GridView.count(
           shrinkWrap: true,
@@ -72,13 +61,17 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
           crossAxisSpacing: 8,
           children: [
             WeeklyWeatherCardWidget(
-                index: listIndex, weatherConditionName: 'moonrise'),
+              index: listIndex,
+              weatherConditionName: 'moonrise',
+            ),
             WeeklyWeatherCardWidget(
                 index: listIndex, weatherConditionName: 'pressure'),
             WeeklyWeatherCardWidget(
                 index: listIndex, weatherConditionName: 'wind_speed'),
             WeeklyWeatherCardWidget(
-                index: listIndex, weatherConditionName: 'moonset'),
+              index: listIndex,
+              weatherConditionName: 'moonset',
+            ),
           ],
         ),
       ],
