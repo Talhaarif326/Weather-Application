@@ -16,17 +16,6 @@
 
 </div>
 
----
-
-> ## 🚧 Work in Progress
->
-> This project is **actively under development** and not yet feature-complete. Core weather functionality is working, but several planned features are still being built. Contributions and feedback are welcome!
->
-> **Currently stable:** Live weather data · Hourly forecast · 7-day forecast · Glassmorphic UI
->
-> **In progress:** Geolocation · Search · Dark mode · Unit converter · Caching · Backend
-
----
 
 ## 📖 Overview
 
@@ -43,7 +32,7 @@ State is managed with **Riverpod**, and the API key is handled securely via `flu
 <!-- Once you have screenshots:
 | Welcome | Home | Weekly Forecast | Settings |
 |---------|------|-----------------|----------|
-| ![Welcome](screenshots/welcome.png) | ![Home](screenshots/home.png) | ![Weekly](screenshots/weekly.png) | ![Settings](screenshots/settings.png) |
+| ![Welcome](screenshots/welcome.jpeg) | ![Home](screenshots/home.jpeg) | ![Weekly](screenshots/weekly.jpeg) | ![Settings](screenshots/settings.jpeg) |
 -->
 
 ---
