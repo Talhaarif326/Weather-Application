@@ -355,63 +355,59 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               SizedBox(height: availableHeight * 0.02),
 
                               // Main weather card — keeps local asset background
-                              SizedBox(
-                                height: availableHeight * 0.25,
-                                width: double.infinity,
-                                child: Card(
-                                  elevation: 10,
-                                  shadowColor:
-                                      Colors.black.withValues(alpha: 0.4),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                    side: BorderSide(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.2),
+                              Card(
+                                elevation: 10,
+                                shadowColor:
+                                    Colors.black.withValues(alpha: 0.4),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: BorderSide(
+                                    color:
+                                        Colors.white.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                clipBehavior: Clip.hardEdge,
+                                child: Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: Image.asset(
+                                        'assets/images/backgroundimage4.jpg',
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                  ),
-                                  clipBehavior: Clip.hardEdge,
-                                  child: Stack(
-                                    children: [
-                                      Positioned.fill(
-                                        child: Image.asset(
-                                          'assets/images/backgroundimage4.jpg',
-                                          fit: BoxFit.cover,
-                                        ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Image.asset(
+                                            'assets/images/image1.png',
+                                            height: 100,
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            '${TempConverter.convert(weatherDate.currentWeather['Temp'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 55,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            'Feels like ${TempConverter.convert(weatherDate.currentWeather['FeelsLike'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 15),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Image.asset(
-                                              'assets/images/image1.png',
-                                              height: 100,
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              '${TempConverter.convert(weatherDate.currentWeather['Temp'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 55,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              'Feels like ${TempConverter.convert(weatherDate.currentWeather['FeelsLike'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
 

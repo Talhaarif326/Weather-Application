@@ -24,178 +24,213 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     final weeklyWeatherprovider = ref
         .watch(weatherProvider)
         .weeklyWeather;
+    final tempUnit = ref.watch(weatherProvider).tempUnit;
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Weekly weather Forecast'),
-        backgroundColor: Colors.transparent,
-        elevation: 0, // Clean look ke liye elevation zero
+        title: const Text(
+          'Weekly Weather Forecast',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF4A90E2),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView.builder(
-            shrinkWrap: true,
-            physics: BouncingScrollPhysics(),
-            itemCount: weeklyWeatherprovider.length,
-            itemBuilder: (context, index) {
-              final DateTime
-              dateTime = // Accessing the week day and Time from the Provider
-              DateTime.fromMillisecondsSinceEpoch(
-                weeklyWeatherprovider[index]['dt'] * 1000,
-              ).toLocal();
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF4A90E2), Color(0xFF1B3A6B)],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              itemCount: weeklyWeatherprovider.length,
+              itemBuilder: (context, index) {
+                final DateTime dateTime =
+                    DateTime.fromMillisecondsSinceEpoch(
+                      weeklyWeatherprovider[index]['dt'] * 1000,
+                    ).toLocal();
 
-              formatedDate = DateFormat(
-                //  Formating the achived Date and Day
-                'EEEE, d MMM yyyy',
-              ).format(dateTime);
+                formatedDate = DateFormat(
+                  'EEEE, d MMM yyyy',
+                ).format(dateTime);
 
-              String iconCode =
-                  weeklyWeatherprovider[index]['weather'][0]['icon']
-                      .toString();
+                String iconCode =
+                    weeklyWeatherprovider[index]['weather'][0]['icon']
+                        .toString();
 
-              return Card(
-                color: const Color.fromARGB(228, 222, 220, 220),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              // Location + Date row
-                              Row(
-                                children: [
-                                  Icon(Icons.location_on_outlined),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    cityName['Name'], // dynamically derived city name
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
+                return Card(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  elevation: 0,
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on_outlined,
+                                      color: Colors.white70,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                formatedDate.toString(),
-                                style: const TextStyle(
-                                  color: Colors.blueGrey,
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      cityName['Name'],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "${((weeklyWeatherprovider[index]["temp"]['day'] as double) - k).toStringAsFixed(0)}°",
-                            style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
+                                const SizedBox(height: 2),
+                                Text(
+                                  formatedDate.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const Spacer(),
-
-                          Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.end,
-                            children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    maxRadius: 25,
-                                    foregroundImage: NetworkImage(
-                                      'https://openweathermap.org/img/wn/$iconCode@4x.png',
-                                    ),
-                                    backgroundColor:
-                                        Colors.transparent,
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    weeklyWeatherprovider[index]["weather"][0]['description'],
-                                  ),
-                                ],
-                              ), // Weather status
-                              Row(
-                                children: [
-                                  const Text('18°'),
-                                  const SizedBox(width: 4),
-                                  // Vertical divider line (Thora rotate kiya hua design ke liye)
-                                  Transform.rotate(
-                                    angle: 0.3,
-                                    child: Container(
-                                      height: 20,
-                                      width: 1.5,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Text('7°'),
-                                ],
+                            const Spacer(),
+                          ],
+                        ),
+                        Row(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${((weeklyWeatherprovider[index]["temp"]['day'] as double) - k).toStringAsFixed(0)}°",
+                              style: const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
-                              const Text('Feels like 9°'),
-                            ],
-                          ),
-                        ],
-                      ),
-                      if (expandedIndex == index)
-                        SizedBox(
-                          child: Column(
+                            ),
+                            const Spacer(),
+                            Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      maxRadius: 25,
+                                      foregroundImage: NetworkImage(
+                                        'https://openweathermap.org/img/wn/$iconCode@4x.png',
+                                      ),
+                                      backgroundColor:
+                                          Colors.transparent,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      weeklyWeatherprovider[index]["weather"][0]['description'],
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      '${TempConverter.convert((weeklyWeatherprovider[index]["temp"]['max'] as num).toDouble(), tempUnit).toStringAsFixed(0)}°',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Transform.rotate(
+                                      angle: 0.3,
+                                      child: Container(
+                                        height: 20,
+                                        width: 1.5,
+                                        color: Colors.white54,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${TempConverter.convert((weeklyWeatherprovider[index]["temp"]['min'] as num).toDouble(), tempUnit).toStringAsFixed(0)}°',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  'Feels like ${TempConverter.convert((weeklyWeatherprovider[index]["feels_like"]['day'] as num).toDouble(), tempUnit).toStringAsFixed(0)}°',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        if (expandedIndex == index)
+                          Column(
                             children: [
-                              // Hourly Forecast Horizontal List
                               const SizedBox(height: 5),
-                              // mazeed weather details (Humidity, Wind, etc.)
                               TenDaysWeatherDetailWidget(
                                 listIndex: index,
                               ),
                             ],
                           ),
-                        ),
-
-                      const SizedBox(height: 2),
-                      // --- More/Less Toggle Button ---
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                // Agar wahi card dubara click ho to band kar do (null), warna naya index set karo
-                                expandedIndex = expandedIndex == index
-                                    ? null
-                                    : index;
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                expandedIndex == index
-                                    ? "less"
-                                    : "More",
-                                style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
+                        const SizedBox(height: 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  expandedIndex =
+                                      expandedIndex == index
+                                      ? null
+                                      : index;
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  expandedIndex == index
+                                      ? "Less"
+                                      : "More",
+                                  style: const TextStyle(
+                                    color: Colors.lightBlueAccent,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),

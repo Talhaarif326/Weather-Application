@@ -21,21 +21,21 @@ class IconsColorsProvider {
       case 'sunset':
         return {
           'icon': Icons.wb_twilight_rounded,
-          'color': Colors.deepOrange,
+          'color': const Color.fromARGB(255, 244, 182, 163),
           'value': formatedTime,
           'unit': '',
         };
       case 'humidity':
         return {
           'icon': Icons.water_drop,
-          'color': Colors.blue,
+          'color': const Color.fromARGB(255, 177, 212, 241),
           'value': value,
           'unit': '%',
         };
       case 'ultraviolet': // 'uvIndex' becomes 'uvindex' due to .toLowerCase()
         return {
           'icon': Icons.wb_sunny,
-          'color': Colors.purple,
+          'color': const Color.fromARGB(255, 230, 113, 251),
           'value': value,
           'unit': '',
         };

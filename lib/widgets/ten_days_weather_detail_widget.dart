@@ -17,12 +17,11 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
         Text(
           'Day',
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
         ),
-        SizedBox(height: 10),
-        
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -43,15 +42,15 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
             ),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           'Night',
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
         ),
-        SizedBox(height: 10),
-
+        const SizedBox(height: 10),
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
