@@ -1,0 +1,125 @@
+<svg viewBox="0 0 1024 576" xmlns="http://www.w3.org/2000/svg" width="1024" height="576">
+  <!-- Base sky - muted blue grey like reference -->
+  <rect width="1024" height="576" fill="#8fa8bc"/>
+  <rect width="1024" height="180" fill="#7a9ab0" opacity="0.6"/>
+  <!-- Heavy rain cloud layers - top filling sky like reference -->
+  <ellipse cx="100" cy="80" rx="200" ry="78" fill="#c8d5e0"/>
+  <ellipse cx="280" cy="60" rx="240" ry="88" fill="#d4dfe8"/>
+  <ellipse cx="520" cy="85" rx="260" ry="92" fill="#ccd9e4"/>
+  <ellipse cx="780" cy="65" rx="230" ry="82" fill="#d0dce6"/>
+  <ellipse cx="980" cy="88" rx="200" ry="78" fill="#c8d5e0"/>
+  <!-- Second cloud layer -->
+  <ellipse cx="60" cy="165" rx="200" ry="72" fill="#b8c8d8" opacity="0.92"/>
+  <ellipse cx="280" cy="150" rx="260" ry="80" fill="#bdc9d8" opacity="0.95"/>
+  <ellipse cx="560" cy="170" rx="280" ry="82" fill="#b8c8d8" opacity="0.92"/>
+  <ellipse cx="840" cy="155" rx="250" ry="76" fill="#bdc9d8" opacity="0.95"/>
+  <ellipse cx="1024" cy="172" rx="200" ry="72" fill="#b8c8d8" opacity="0.9"/>
+  <!-- Third darker cloud band -->
+  <ellipse cx="160" cy="235" rx="220" ry="65" fill="#aabac8" opacity="0.88"/>
+  <ellipse cx="420" cy="220" rx="260" ry="70" fill="#b0bece" opacity="0.88"/>
+  <ellipse cx="700" cy="238" rx="270" ry="68" fill="#aabac8" opacity="0.88"/>
+  <ellipse cx="960" cy="225" rx="220" ry="65" fill="#b0bece" opacity="0.85"/>
+  <!-- Rain streaks - diagonal like reference image -->
+  <g stroke="rgba(200,220,240,0.65)" stroke-width="1.5" stroke-linecap="round">
+    <!-- Column 1 -->
+    <line x1="30"  y1="240" x2="8"   y2="310"/>
+    <line x1="30"  y1="320" x2="8"   y2="390"/>
+    <line x1="30"  y1="400" x2="8"   y2="470"/>
+    <line x1="30"  y1="480" x2="8"   y2="550"/>
+    <!-- Column 2 -->
+    <line x1="80"  y1="240" x2="58"  y2="310"/>
+    <line x1="80"  y1="320" x2="58"  y2="390"/>
+    <line x1="80"  y1="400" x2="58"  y2="470"/>
+    <line x1="80"  y1="480" x2="58"  y2="550"/>
+    <!-- Column 3 -->
+    <line x1="130" y1="235" x2="108" y2="305"/>
+    <line x1="130" y1="315" x2="108" y2="385"/>
+    <line x1="130" y1="395" x2="108" y2="465"/>
+    <line x1="130" y1="475" x2="108" y2="545"/>
+    <!-- Column 4 -->
+    <line x1="180" y1="240" x2="158" y2="310"/>
+    <line x1="180" y1="320" x2="158" y2="390"/>
+    <line x1="180" y1="400" x2="158" y2="470"/>
+    <line x1="180" y1="480" x2="158" y2="550"/>
+    <!-- Column 5 -->
+    <line x1="230" y1="235" x2="208" y2="305"/>
+    <line x1="230" y1="315" x2="208" y2="385"/>
+    <line x1="230" y1="395" x2="208" y2="465"/>
+    <line x1="230" y1="475" x2="208" y2="545"/>
+    <!-- Column 6 -->
+    <line x1="280" y1="240" x2="258" y2="310"/>
+    <line x1="280" y1="320" x2="258" y2="390"/>
+    <line x1="280" y1="400" x2="258" y2="470"/>
+    <line x1="280" y1="480" x2="258" y2="550"/>
+    <!-- Column 7 -->
+    <line x1="330" y1="235" x2="308" y2="305"/>
+    <line x1="330" y1="315" x2="308" y2="385"/>
+    <line x1="330" y1="395" x2="308" y2="465"/>
+    <line x1="330" y1="475" x2="308" y2="545"/>
+    <!-- Column 8 -->
+    <line x1="380" y1="240" x2="358" y2="310"/>
+    <line x1="380" y1="320" x2="358" y2="390"/>
+    <line x1="380" y1="400" x2="358" y2="470"/>
+    <line x1="380" y1="480" x2="358" y2="550"/>
+    <!-- Column 9 -->
+    <line x1="430" y1="235" x2="408" y2="305"/>
+    <line x1="430" y1="315" x2="408" y2="385"/>
+    <line x1="430" y1="395" x2="408" y2="465"/>
+    <line x1="430" y1="475" x2="408" y2="545"/>
+    <!-- Column 10 -->
+    <line x1="480" y1="240" x2="458" y2="310"/>
+    <line x1="480" y1="320" x2="458" y2="390"/>
+    <line x1="480" y1="400" x2="458" y2="470"/>
+    <line x1="480" y1="480" x2="458" y2="550"/>
+    <!-- Column 11 -->
+    <line x1="530" y1="235" x2="508" y2="305"/>
+    <line x1="530" y1="315" x2="508" y2="385"/>
+    <line x1="530" y1="395" x2="508" y2="465"/>
+    <line x1="530" y1="475" x2="508" y2="545"/>
+    <!-- Column 12 -->
+    <line x1="580" y1="240" x2="558" y2="310"/>
+    <line x1="580" y1="320" x2="558" y2="390"/>
+    <line x1="580" y1="400" x2="558" y2="470"/>
+    <line x1="580" y1="480" x2="558" y2="550"/>
+  </g>
+  <!-- ===== HOUSE ===== -->
+  <rect x="620" y="340" width="404" height="236" fill="#dde6ec"/>
+  <line x1="620" y1="368" x2="1024" y2="368" stroke="#c8d5de" stroke-width="2"/>
+  <line x1="620" y1="396" x2="1024" y2="396" stroke="#c8d5de" stroke-width="2"/>
+  <line x1="620" y1="424" x2="1024" y2="424" stroke="#c8d5de" stroke-width="2"/>
+  <line x1="620" y1="452" x2="1024" y2="452" stroke="#c8d5de" stroke-width="2"/>
+  <line x1="620" y1="480" x2="1024" y2="480" stroke="#c8d5de" stroke-width="2"/>
+  <line x1="620" y1="508" x2="1024" y2="508" stroke="#c8d5de" stroke-width="2"/>
+  <line x1="620" y1="536" x2="1024" y2="536" stroke="#c8d5de" stroke-width="2"/>
+  <polygon points="596,348 1024,348 1024,305 812,240 596,305" fill="#9aadb8"/>
+  <line x1="596" y1="305" x2="812" y2="240" stroke="#88a0aa" stroke-width="2"/>
+  <line x1="812" y1="240" x2="1024" y2="305" stroke="#88a0aa" stroke-width="2"/>
+  <rect x="596" y="340" width="428" height="16" fill="#b8c8d5"/>
+  <rect x="596" y="356" width="428" height="8" fill="#9aadb8"/>
+  <!-- Window left -->
+  <rect x="648" y="400" width="120" height="130" fill="#b8d0e2" opacity="0.75"/>
+  <rect x="648" y="400" width="120" height="130" fill="none" stroke="#9aadb8" stroke-width="3"/>
+  <line x1="708" y1="400" x2="708" y2="530" stroke="#9aadb8" stroke-width="2"/>
+  <line x1="648" y1="465" x2="768" y2="465" stroke="#9aadb8" stroke-width="2"/>
+  <!-- Rain on window left -->
+  <line x1="665" y1="400" x2="655" y2="530" stroke="rgba(180,210,230,0.5)" stroke-width="1"/>
+  <line x1="695" y1="400" x2="685" y2="530" stroke="rgba(180,210,230,0.5)" stroke-width="1"/>
+  <line x1="725" y1="400" x2="715" y2="530" stroke="rgba(180,210,230,0.5)" stroke-width="1"/>
+  <line x1="755" y1="400" x2="745" y2="530" stroke="rgba(180,210,230,0.5)" stroke-width="1"/>
+  <!-- Window right -->
+  <rect x="830" y="400" width="120" height="130" fill="#b8d0e2" opacity="0.75"/>
+  <rect x="830" y="400" width="120" height="130" fill="none" stroke="#9aadb8" stroke-width="3"/>
+  <line x1="890" y1="400" x2="890" y2="530" stroke="#9aadb8" stroke-width="2"/>
+  <line x1="830" y1="465" x2="950" y2="465" stroke="#9aadb8" stroke-width="2"/>
+  <!-- Rain on window right -->
+  <line x1="847" y1="400" x2="837" y2="530" stroke="rgba(180,210,230,0.5)" stroke-width="1"/>
+  <line x1="877" y1="400" x2="867" y2="530" stroke="rgba(180,210,230,0.5)" stroke-width="1"/>
+  <line x1="907" y1="400" x2="897" y2="530" stroke="rgba(180,210,230,0.5)" stroke-width="1"/>
+  <line x1="937" y1="400" x2="927" y2="530" stroke="rgba(180,210,230,0.5)" stroke-width="1"/>
+  <!-- Attic window -->
+  <rect x="740" y="263" width="70" height="56" fill="#b8d0e2" opacity="0.7"/>
+  <rect x="740" y="263" width="70" height="56" fill="none" stroke="#88a0aa" stroke-width="2"/>
+  <line x1="775" y1="263" x2="775" y2="319" stroke="#88a0aa" stroke-width="1.5"/>
+  <!-- White sparkle bottom right like reference -->
+  <path d="M1005 558 l5-10 l5 10 l10 5 l-10 5 l-5 10 l-5-10 l-10-5 z" fill="white" opacity="0.9"/>
+</svg>

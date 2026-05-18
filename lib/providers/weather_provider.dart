@@ -218,6 +218,7 @@ class Weather extends StateNotifier<WeatherModel> {
         'Name': cityName,
         'Temp': (data['current']['temp'] as num).toDouble(),
         'FeelsLike': (data['current']['feels_like'] as num).toDouble(),
+        'Condition': data['current']['weather'][0]['main'] as String,
       },
       hourlyWeather: data['hourly'] as List<dynamic>,
       weatherConditions: {

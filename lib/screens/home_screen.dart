@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:weather/providers/weather_provider.dart';
+import 'package:weather/utils/weather_summary_builder.dart';
 
 import 'package:weather/widgets/hours_card_widget.dart';
 import 'package:weather/widgets/today_weather_detail_widget.dart';
 import 'package:weather/utils/temp_converter.dart';
-
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.name});
@@ -72,7 +73,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Container(
       width: double.infinity,
       color: Colors.orange.shade700,
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      padding: const EdgeInsets.symmetric(
+        vertical: 6,
+        horizontal: 12,
+      ),
       child: Row(
         children: [
           const Icon(Icons.wifi_off, color: Colors.white, size: 16),
@@ -84,6 +88,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
     );
+  }
+
+  String _getWeatherAsset(String condition) {
+    switch (condition.toLowerCase()) {
+      case 'clear':
+        return 'assets/images/sunny.svg';
+      case 'clouds':
+        return 'assets/images/cloudy.svg';
+      case 'rain':
+      case 'drizzle':
+        return 'assets/images/rainy.svg';
+      case 'thunderstorm':
+        return 'assets/images/stormy.svg';
+      case 'snow':
+        return 'assets/images/snowy.svg';
+      default:
+        return 'assets/images/partialcloudy.svg';
+    }
   }
 
   @override
@@ -122,20 +144,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Text(
                     weatherDate.errorMessage!,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      backgroundColor: Colors.white.withValues(
+                        alpha: 0.2,
+                      ),
                       foregroundColor: Colors.white,
                       side: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.4)),
+                        color: Colors.white.withValues(alpha: 0.4),
+                      ),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
-                    onPressed: () =>
-                        ref.read(weatherProvider.notifier).fetchWeather(),
+                    onPressed: () => ref
+                        .read(weatherProvider.notifier)
+                        .fetchWeather(),
                     icon: const Icon(Icons.refresh),
                     label: const Text('Try Again'),
                   ),
@@ -196,8 +226,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   // Profile avatar — glass style, offline safe
                                   CircleAvatar(
                                     maxRadius: 30,
-                                    backgroundColor:
-                                        Colors.white.withValues(alpha: 0.2),
+                                    backgroundColor: Colors.white
+                                        .withValues(alpha: 0.2),
                                     child: const Icon(
                                       Icons.person,
                                       color: Colors.white,
@@ -229,8 +259,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   // Notification bell — taps to settings
                                   CircleAvatar(
                                     maxRadius: 30,
-                                    backgroundColor:
-                                        Colors.white.withValues(alpha: 0.15),
+                                    backgroundColor: Colors.white
+                                        .withValues(alpha: 0.15),
                                     child: const Icon(
                                       Icons.notifications,
                                       size: 26,
@@ -246,26 +276,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               Container(
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    20,
+                                  ),
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.3),
+                                    color: Colors.white.withValues(
+                                      alpha: 0.3,
+                                    ),
                                   ),
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10),
+                                  horizontal: 10,
+                                ),
                                 child: TextField(
                                   controller: inputControler,
                                   onChanged: _onSearchChanged,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   onSubmitted: (val) {
-                                    if (val.isNotEmpty) _onSuggestionTap(val);
+                                    if (val.isNotEmpty)
+                                      _onSuggestionTap(val);
                                   },
                                   decoration: const InputDecoration(
                                     hintText: 'Search City',
                                     border: InputBorder.none,
-                                    icon: Icon(Icons.search,
-                                        color: Colors.white70),
+                                    icon: Icon(
+                                      Icons.search,
+                                      color: Colors.white70,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -275,15 +317,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 Container(
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF1C3A6A),
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius:
+                                        BorderRadius.circular(12),
                                     border: Border.all(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.2),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color:
-                                            Colors.black.withValues(alpha: 0.3),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.3),
                                         blurRadius: 8,
                                       ),
                                     ],
@@ -293,22 +337,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     physics:
                                         const NeverScrollableScrollPhysics(),
                                     itemCount: _suggestions.length,
-                                    itemBuilder: (context, index) => ListTile(
-                                      leading: const Icon(
-                                        Icons.location_on_outlined,
-                                        size: 18,
-                                        color: Colors.white70,
-                                      ),
-                                      title: Text(
-                                        _suggestions[index],
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.white,
+                                    itemBuilder: (context, index) =>
+                                        ListTile(
+                                          leading: const Icon(
+                                            Icons
+                                                .location_on_outlined,
+                                            size: 18,
+                                            color: Colors.white70,
+                                          ),
+                                          title: Text(
+                                            _suggestions[index],
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          onTap: () =>
+                                              _onSuggestionTap(
+                                                _suggestions[index],
+                                              ),
                                         ),
-                                      ),
-                                      onTap: () =>
-                                          _onSuggestionTap(_suggestions[index]),
-                                    ),
                                   ),
                                 ),
 
@@ -324,7 +372,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   const SizedBox(width: 5),
                                   Expanded(
                                     child: Text(
-                                      weatherDate.currentWeather['Name'] ?? '',
+                                      weatherDate
+                                              .currentWeather['Name'] ??
+                                          '',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
@@ -336,11 +386,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   ),
                                   IconButton(
                                     onPressed: () => ref
-                                        .read(weatherProvider.notifier)
+                                        .read(
+                                          weatherProvider.notifier,
+                                        )
                                         .fetchWeather(),
                                     iconSize: 20,
-                                    icon: const Icon(Icons.refresh,
-                                        color: Colors.white70),
+                                    icon: const Icon(
+                                      Icons.refresh,
+                                      color: Colors.white70,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -348,66 +402,100 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               Text(
                                 formatedDate,
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.7),
+                                  color: Colors.white.withValues(
+                                    alpha: 0.7,
+                                  ),
                                 ),
                               ),
 
-                              SizedBox(height: availableHeight * 0.02),
-
-                              // Main weather card — keeps local asset background
-                              Card(
-                                elevation: 10,
-                                shadowColor:
-                                    Colors.black.withValues(alpha: 0.4),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  side: BorderSide(
-                                    color:
-                                        Colors.white.withValues(alpha: 0.2),
+                              SizedBox(
+                                height: availableHeight * 0.02,
+                              ),
+                              // weather summary tile
+                              ListTile(
+                                leading: const Icon(
+                                  Icons.info_outline,
+                                  color: Colors.white70,
+                                  size: 20,
+                                ),
+                                title: Text(
+                                  WeatherSummaryBuilder.build(
+                                    weatherDate.weeklyWeather[0],
+                                  ),
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
                                   ),
                                 ),
-                                clipBehavior: Clip.hardEdge,
-                                child: Stack(
-                                  children: [
-                                    Positioned.fill(
-                                      child: Image.asset(
-                                        'assets/images/backgroundimage4.jpg',
-                                        fit: BoxFit.cover,
+
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+
+                              // Main weather card — keeps local asset background
+                              SizedBox(
+                                height: 220,
+                                child: Card(
+                                  elevation: 10,
+                                  shadowColor: Colors.black
+                                      .withValues(alpha: 0.4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(30),
+                                    side: BorderSide(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Image.asset(
-                                            'assets/images/image1.png',
-                                            height: 100,
+                                  ),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: SvgPicture.asset(
+                                          _getWeatherAsset(
+                                            weatherDate.currentWeather['Condition']
+                                                    as String? ??
+                                                'clear',
                                           ),
-                                          const SizedBox(height: 5),
-                                          Text(
-                                            '${TempConverter.convert(weatherDate.currentWeather['Temp'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 55,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Text(
-                                            'Feels like ${TempConverter.convert(weatherDate.currentWeather['FeelsLike'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ],
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 15,
+                                            ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment
+                                                  .start,
+                                          mainAxisSize:
+                                              MainAxisSize.min,
+                                          children: [
+                                            SizedBox(height: 105),
+                                            Text(
+                                              '${TempConverter.convert(weatherDate.currentWeather['Temp'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
+                                              style: const TextStyle(
+                                                fontWeight:
+                                                    FontWeight.bold,
+                                                fontSize: 55,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              'Feels like ${TempConverter.convert(weatherDate.currentWeather['FeelsLike'] as double, tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
 
@@ -416,14 +504,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               // Bottom glass card: hourly + weather detail
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    20,
+                                  ),
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                    color: Colors.white.withValues(
+                                      alpha: 0.2,
+                                    ),
                                   ),
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 2, vertical: 5),
+                                  horizontal: 2,
+                                  vertical: 5,
+                                ),
                                 child: Column(
                                   children: [
                                     HoursCardWidget(),

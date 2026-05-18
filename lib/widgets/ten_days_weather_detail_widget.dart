@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weather/providers/weather_provider.dart';
+import 'package:weather/utils/weather_summary_builder.dart';
 import 'package:weather/widgets/weekly_weather_card_widget.dart';
 
 class TenDaysWeatherDetailWidget extends ConsumerWidget {
@@ -17,9 +19,24 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
         Text(
           'Day',
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        ListTile(
+          leading: const Icon(
+            Icons.info_outline,
+            color: Colors.white70,
+            size: 20,
+          ),
+          title: Text(WeatherSummaryBuilder.build(
+            ref.watch(weatherProvider).weeklyWeather[listIndex],
+             
+          ),
+          style: TextStyle(color: Colors.white70, fontSize: 12),),
+          
+          dense: true,
+          contentPadding: EdgeInsets.zero,
         ),
         const SizedBox(height: 10),
         GridView.count(
@@ -31,11 +48,17 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
           crossAxisSpacing: 8,
           children: [
             WeeklyWeatherCardWidget(
-                index: listIndex, weatherConditionName: 'sunrise'),
+              index: listIndex,
+              weatherConditionName: 'sunrise',
+            ),
             WeeklyWeatherCardWidget(
-                index: listIndex, weatherConditionName: 'humidity'),
+              index: listIndex,
+              weatherConditionName: 'humidity',
+            ),
             WeeklyWeatherCardWidget(
-                index: listIndex, weatherConditionName: 'uvi'),
+              index: listIndex,
+              weatherConditionName: 'uvi',
+            ),
             WeeklyWeatherCardWidget(
               index: listIndex,
               weatherConditionName: 'sunset',
@@ -46,9 +69,9 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
         Text(
           'Night',
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         const SizedBox(height: 10),
         GridView.count(
@@ -64,9 +87,13 @@ class TenDaysWeatherDetailWidget extends ConsumerWidget {
               weatherConditionName: 'moonrise',
             ),
             WeeklyWeatherCardWidget(
-                index: listIndex, weatherConditionName: 'pressure'),
+              index: listIndex,
+              weatherConditionName: 'pressure',
+            ),
             WeeklyWeatherCardWidget(
-                index: listIndex, weatherConditionName: 'wind_speed'),
+              index: listIndex,
+              weatherConditionName: 'wind_speed',
+            ),
             WeeklyWeatherCardWidget(
               index: listIndex,
               weatherConditionName: 'moonset',

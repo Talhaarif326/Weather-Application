@@ -1,0 +1,143 @@
+<svg viewBox="0 0 1024 576" xmlns="http://www.w3.org/2000/svg" width="1024" height="576">
+  <!-- Pale white-blue snow sky -->
+  <rect width="1024" height="576" fill="#d8e4ee"/>
+  <rect width="1024" height="180" fill="#c5d5e5" opacity="0.65"/>
+  <!-- Snow clouds - soft white-grey -->
+  <ellipse cx="100" cy="80" rx="200" ry="75" fill="#e8eef5"/>
+  <ellipse cx="290" cy="60" rx="235" ry="82" fill="#edf2f8"/>
+  <ellipse cx="530" cy="88" rx="255" ry="86" fill="#e8eef5"/>
+  <ellipse cx="790" cy="65" rx="225" ry="80" fill="#ecf1f7"/>
+  <ellipse cx="990" cy="90" rx="195" ry="76" fill="#e8eef5"/>
+  <!-- Second cloud layer -->
+  <ellipse cx="60" cy="160" rx="195" ry="68" fill="#dde8f2" opacity="0.9"/>
+  <ellipse cx="270" cy="145" rx="255" ry="76" fill="#e0ebf4" opacity="0.92"/>
+  <ellipse cx="545" cy="168" rx="275" ry="80" fill="#dde8f2" opacity="0.9"/>
+  <ellipse cx="825" cy="150" rx="245" ry="74" fill="#e0ebf4" opacity="0.92"/>
+  <ellipse cx="1024" cy="170" rx="195" ry="68" fill="#dde8f2" opacity="0.88"/>
+  <!-- Third cloud layer -->
+  <ellipse cx="140" cy="228" rx="215" ry="62" fill="#d5e2ee" opacity="0.86"/>
+  <ellipse cx="390" cy="215" rx="250" ry="66" fill="#d8e5f0" opacity="0.86"/>
+  <ellipse cx="660" cy="232" rx="260" ry="64" fill="#d5e2ee" opacity="0.86"/>
+  <ellipse cx="940" cy="220" rx="215" ry="62" fill="#d8e5f0" opacity="0.84"/>
+  <!-- Snowflakes - varied sizes scattered across sky -->
+  <g fill="white" opacity="0.92">
+    <!-- Row 1 - large -->
+    <circle cx="55"  cy="270" r="3"/>
+    <circle cx="110" cy="258" r="2.5"/>
+    <circle cx="168" cy="275" r="3"/>
+    <circle cx="225" cy="262" r="2.5"/>
+    <circle cx="282" cy="278" r="3"/>
+    <circle cx="340" cy="265" r="2.5"/>
+    <circle cx="398" cy="272" r="3"/>
+    <circle cx="455" cy="260" r="2.5"/>
+    <circle cx="512" cy="276" r="3"/>
+    <circle cx="570" cy="263" r="2.5"/>
+    <circle cx="628" cy="270" r="3"/>
+    <!-- Row 1 smaller in between -->
+    <circle cx="82"  cy="280" r="1.8"/>
+    <circle cx="140" cy="265" r="1.8"/>
+    <circle cx="197" cy="284" r="1.8"/>
+    <circle cx="255" cy="271" r="1.8"/>
+    <circle cx="312" cy="285" r="1.8"/>
+    <circle cx="370" cy="272" r="1.8"/>
+    <circle cx="427" cy="267" r="1.8"/>
+    <circle cx="484" cy="282" r="1.8"/>
+    <circle cx="542" cy="269" r="1.8"/>
+    <circle cx="599" cy="278" r="1.8"/>
+    <!-- Row 2 -->
+    <circle cx="40"  cy="310" r="2.5"/>
+    <circle cx="100" cy="325" r="3"/>
+    <circle cx="158" cy="308" r="2.5"/>
+    <circle cx="218" cy="322" r="3"/>
+    <circle cx="278" cy="312" r="2.5"/>
+    <circle cx="335" cy="328" r="3"/>
+    <circle cx="393" cy="315" r="2.5"/>
+    <circle cx="450" cy="330" r="3"/>
+    <circle cx="508" cy="318" r="2.5"/>
+    <circle cx="565" cy="325" r="3"/>
+    <circle cx="622" cy="312" r="2.5"/>
+    <!-- Row 2 in between -->
+    <circle cx="70"  cy="318" r="1.8"/>
+    <circle cx="130" cy="315" r="1.8"/>
+    <circle cx="188" cy="332" r="1.8"/>
+    <circle cx="248" cy="318" r="1.8"/>
+    <circle cx="306" cy="335" r="1.8"/>
+    <circle cx="364" cy="320" r="1.8"/>
+    <circle cx="422" cy="338" r="1.8"/>
+    <circle cx="480" cy="324" r="1.8"/>
+    <circle cx="537" cy="336" r="1.8"/>
+    <circle cx="594" cy="322" r="1.8"/>
+    <!-- Row 3 -->
+    <circle cx="50"  cy="358" r="3"/>
+    <circle cx="115" cy="370" r="2.5"/>
+    <circle cx="178" cy="355" r="3"/>
+    <circle cx="240" cy="368" r="2.5"/>
+    <circle cx="302" cy="358" r="3"/>
+    <circle cx="362" cy="372" r="2.5"/>
+    <circle cx="422" cy="360" r="3"/>
+    <circle cx="484" cy="375" r="2.5"/>
+    <circle cx="546" cy="362" r="3"/>
+    <circle cx="606" cy="370" r="2.5"/>
+    <!-- Row 3 in between -->
+    <circle cx="82"  cy="365" r="1.8"/>
+    <circle cx="148" cy="362" r="1.8"/>
+    <circle cx="210" cy="376" r="1.8"/>
+    <circle cx="272" cy="363" r="1.8"/>
+    <circle cx="332" cy="378" r="1.8"/>
+    <circle cx="394" cy="366" r="1.8"/>
+    <circle cx="454" cy="380" r="1.8"/>
+    <circle cx="516" cy="368" r="1.8"/>
+    <circle cx="578" cy="378" r="1.8"/>
+    <!-- Row 4 - near ground -->
+    <circle cx="60"  cy="408" r="2.5"/>
+    <circle cx="130" cy="418" r="3"/>
+    <circle cx="200" cy="405" r="2.5"/>
+    <circle cx="268" cy="420" r="3"/>
+    <circle cx="336" cy="410" r="2.5"/>
+    <circle cx="403" cy="425" r="3"/>
+    <circle cx="470" cy="412" r="2.5"/>
+    <circle cx="536" cy="422" r="3"/>
+    <circle cx="602" cy="414" r="2.5"/>
+  </g>
+  <!-- Snow ground layer -->
+  <rect x="0" y="530" width="1024" height="46" fill="white" opacity="0.55"/>
+  <rect x="0" y="545" width="1024" height="31" fill="white" opacity="0.4"/>
+  <!-- ===== HOUSE ===== -->
+  <rect x="620" y="340" width="404" height="236" fill="#eaeef5"/>
+  <line x1="620" y1="368" x2="1024" y2="368" stroke="#d8e0ec" stroke-width="2"/>
+  <line x1="620" y1="396" x2="1024" y2="396" stroke="#d8e0ec" stroke-width="2"/>
+  <line x1="620" y1="424" x2="1024" y2="424" stroke="#d8e0ec" stroke-width="2"/>
+  <line x1="620" y1="452" x2="1024" y2="452" stroke="#d8e0ec" stroke-width="2"/>
+  <line x1="620" y1="480" x2="1024" y2="480" stroke="#d8e0ec" stroke-width="2"/>
+  <line x1="620" y1="508" x2="1024" y2="508" stroke="#d8e0ec" stroke-width="2"/>
+  <line x1="620" y1="536" x2="1024" y2="536" stroke="#d8e0ec" stroke-width="2"/>
+  <polygon points="596,348 1024,348 1024,305 812,240 596,305" fill="#a8b8c8"/>
+  <line x1="596" y1="305" x2="812" y2="240" stroke="#98a8b8" stroke-width="2"/>
+  <line x1="812" y1="240" x2="1024" y2="305" stroke="#98a8b8" stroke-width="2"/>
+  <!-- Snow on roof -->
+  <path d="M596,305 Q700,292 812,240 Q924,292 1024,305 L1024,318 Q924,305 812,253 Q700,305 596,318 Z" fill="white" opacity="0.88"/>
+  <rect x="596" y="340" width="428" height="16" fill="#c5d2de"/>
+  <rect x="596" y="356" width="428" height="8" fill="#a8b8c8"/>
+  <!-- Snow on overhang -->
+  <rect x="596" y="340" width="428" height="10" fill="white" opacity="0.72"/>
+  <!-- Window left -->
+  <rect x="648" y="400" width="120" height="130" fill="#cdd8e8" opacity="0.82"/>
+  <rect x="648" y="400" width="120" height="130" fill="none" stroke="#a8b8c8" stroke-width="3"/>
+  <line x1="708" y1="400" x2="708" y2="530" stroke="#a8b8c8" stroke-width="2"/>
+  <line x1="648" y1="465" x2="768" y2="465" stroke="#a8b8c8" stroke-width="2"/>
+  <!-- Snow on window sill left -->
+  <rect x="646" y="398" width="124" height="10" fill="white" opacity="0.82"/>
+  <!-- Window right -->
+  <rect x="830" y="400" width="120" height="130" fill="#cdd8e8" opacity="0.82"/>
+  <rect x="830" y="400" width="120" height="130" fill="none" stroke="#a8b8c8" stroke-width="3"/>
+  <line x1="890" y1="400" x2="890" y2="530" stroke="#a8b8c8" stroke-width="2"/>
+  <line x1="830" y1="465" x2="950" y2="465" stroke="#a8b8c8" stroke-width="2"/>
+  <!-- Snow on window sill right -->
+  <rect x="828" y="398" width="124" height="10" fill="white" opacity="0.82"/>
+  <!-- Attic window -->
+  <rect x="740" y="263" width="70" height="56" fill="#cdd8e8" opacity="0.72"/>
+  <rect x="740" y="263" width="70" height="56" fill="none" stroke="#98a8b8" stroke-width="2"/>
+  <line x1="775" y1="263" x2="775" y2="319" stroke="#98a8b8" stroke-width="1.5"/>
+  <!-- Sparkle bottom right -->
+  <path d="M1005 558 l5-10 l5 10 l10 5 l-10 5 l-5 10 l-5-10 l-10-5 z" fill="white" opacity="0.9"/>
+</svg>
