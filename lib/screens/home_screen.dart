@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:weather/providers/weather_provider.dart';
+import 'package:weather/utils/lottie_helper.dart';
 import 'package:weather/utils/weather_summary_builder.dart';
 
 import 'package:weather/widgets/hours_card_widget.dart';
@@ -459,6 +460,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                 'clear',
                                           ),
                                           fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      // ADD THIS BELOW — new lottie icon on top of background
+                                      Positioned(
+                                        top: 7,
+                                        left: 15,
+                                        child: WeatherLottie(
+                                          weatherId:
+                                              weatherDate
+                                                      .currentWeather['WeatherId']
+                                                  as int? ??
+                                              800,
+                                          isDay:
+                                              !(weatherDate
+                                                      .currentWeather['Icon']
+                                                      ?.toString()
+                                                      .endsWith(
+                                                        'n',
+                                                      ) ??
+                                                  false),
+                                          size: 110,
                                         ),
                                       ),
                                       Padding(

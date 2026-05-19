@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:weather/providers/weather_provider.dart';
+import 'package:weather/utils/lottie_helper.dart';
 import 'package:weather/widgets/ten_days_weather_detail_widget.dart';
 import 'package:weather/utils/temp_converter.dart';
 
@@ -121,7 +122,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                               CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "${((weeklyWeatherprovider[index]["temp"]['day'] as double) - k).toStringAsFixed(0)}°",
+                              '${TempConverter.convert((weeklyWeatherprovider[index]["temp"]['day'] as num).toDouble(), tempUnit).toStringAsFixed(0)}${TempConverter.label(tempUnit)}',
                               style: const TextStyle(
                                 fontSize: 36,
                                 fontWeight: FontWeight.bold,
@@ -135,13 +136,12 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    CircleAvatar(
-                                      maxRadius: 25,
-                                      foregroundImage: NetworkImage(
-                                        'https://openweathermap.org/img/wn/$iconCode@4x.png',
-                                      ),
-                                      backgroundColor:
-                                          Colors.transparent,
+                                    WeatherLottie(
+                                      weatherId:
+                                          weeklyWeatherprovider[index]['weather'][0]['id']
+                                              as int,
+                                      isDay: iconCode.endsWith('d'),
+                                      size: 55,
                                     ),
                                     const SizedBox(width: 10),
                                     Text(

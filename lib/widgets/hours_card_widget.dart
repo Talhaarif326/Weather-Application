@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'package:weather/providers/weather_provider.dart';
 import 'package:weather/utils/temp_converter.dart';
+import 'package:weather/utils/lottie_helper.dart';
 
 class HoursCardWidget extends ConsumerWidget {
   const HoursCardWidget({super.key});
@@ -89,18 +90,11 @@ class HoursCardWidget extends ConsumerWidget {
                     const SizedBox(height: 4),
 
                     // Weather icon
-                    Image.network(
-                      'https://openweathermap.org/img/wn/$iconCode@2x.png',
-                      height: 32,
-                      width: 32,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        isNight ? Icons.nightlight_round : Icons.wb_sunny,
-                        color: isNight
-                            ? Colors.white60
-                            : Colors.yellow.shade300,
-                        size: 24,
-                      ),
-                    ),
+                    WeatherLottie(
+  weatherId: hoursWeather.hourlyWeather[index]['weather'][0]['id'] as int,
+  isDay: !isNight,
+  size: 36,
+),
                     const SizedBox(height: 4),
 
                     // Temperature

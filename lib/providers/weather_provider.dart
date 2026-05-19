@@ -21,8 +21,9 @@ class Weather extends StateNotifier<WeatherModel> {
   // Reliable internet check — actually tries to reach a server
   Future<bool> _hasInternet() async {
     try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 5));
+      final result = await InternetAddress.lookup(
+        'google.com',
+      ).timeout(const Duration(seconds: 5));
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } catch (_) {
       return false;
@@ -40,7 +41,8 @@ class Weather extends StateNotifier<WeatherModel> {
         if (!loaded) {
           state = state.copyWith(
             isLoading: false,
-            errorMessage: 'No internet connection and no cached data available.',
+            errorMessage:
+                'No internet connection and no cached data available.',
           );
         }
         return;
@@ -59,7 +61,10 @@ class Weather extends StateNotifier<WeatherModel> {
       );
     } catch (e) {
       final locationId = await _db.getCurrentLocationId();
-      final loaded = await _loadFromCache(locationId, error: e.toString());
+      final loaded = await _loadFromCache(
+        locationId,
+        error: e.toString(),
+      );
       if (!loaded) {
         state = state.copyWith(
           errorMessage: e.toString(),
@@ -72,10 +77,14 @@ class Weather extends StateNotifier<WeatherModel> {
   Future<void> fetchWeatherByCity(String cityName) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      final List<Location> locations = await locationFromAddress(cityName)
-          .timeout(const Duration(seconds: 15));
+      final List<Location> locations = await locationFromAddress(
+        cityName,
+      ).timeout(const Duration(seconds: 15));
       if (locations.isEmpty) {
-        state = state.copyWith(isLoading: false, errorMessage: 'City not found.');
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'City not found.',
+        );
         return;
       }
       final lat = locations.first.latitude;
@@ -97,7 +106,10 @@ class Weather extends StateNotifier<WeatherModel> {
         overrideCityName: cityName,
       );
     } catch (e) {
-      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
+      state = state.copyWith(
+        errorMessage: e.toString(),
+        isLoading: false,
+      );
     }
   }
 
@@ -134,8 +146,10 @@ class Weather extends StateNotifier<WeatherModel> {
     try {
       String cityName = overrideCityName ?? 'Unknown City';
       if (overrideCityName == null) {
-        final List<Placemark> places = await placemarkFromCoordinates(lat, lon)
-            .timeout(const Duration(seconds: 30));
+        final List<Placemark> places = await placemarkFromCoordinates(
+          lat,
+          lon,
+        ).timeout(const Duration(seconds: 30));
         cityName = places[0].locality ?? 'Unknown City';
         await _db.updateCurrentLocation(
           cityName: cityName,
@@ -147,7 +161,9 @@ class Weather extends StateNotifier<WeatherModel> {
       final Uri url = Uri.parse(
         'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&appid=$apiKey',
       );
-      final response = await http.get(url).timeout(const Duration(seconds: 15));
+      final response = await http
+          .get(url)
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -169,7 +185,10 @@ class Weather extends StateNotifier<WeatherModel> {
       }
     } catch (e) {
       // Network error — try cache
-      final loaded = await _loadFromCache(locationId, error: e.toString());
+      final loaded = await _loadFromCache(
+        locationId,
+        error: e.toString(),
+      );
       if (!loaded) {
         state = state.copyWith(
           errorMessage: e.toString(),
@@ -191,15 +210,24 @@ class Weather extends StateNotifier<WeatherModel> {
         }
         return false;
       }
-      final data = cached['data']['apiResponse'] as Map<String, dynamic>;
+      final data =
+          cached['data']['apiResponse'] as Map<String, dynamic>;
       final cityName = cached['data']['cityName'] as String;
       final lastUpdated = DateTime.fromMillisecondsSinceEpoch(
         cached['last_updated'] as int,
       );
-      _applyWeatherData(cityName, data, isOffline: true, lastUpdated: lastUpdated);
+      _applyWeatherData(
+        cityName,
+        data,
+        isOffline: true,
+        lastUpdated: lastUpdated,
+      );
       return true;
     } catch (e) {
-      state = state.copyWith(errorMessage: e.toString(), isLoading: false);
+      state = state.copyWith(
+        errorMessage: e.toString(),
+        isLoading: false,
+      );
       return false;
     }
   }
@@ -217,8 +245,11 @@ class Weather extends StateNotifier<WeatherModel> {
       weatherData: {
         'Name': cityName,
         'Temp': (data['current']['temp'] as num).toDouble(),
-        'FeelsLike': (data['current']['feels_like'] as num).toDouble(),
+        'FeelsLike': (data['current']['feels_like'] as num)
+            .toDouble(),
         'Condition': data['current']['weather'][0]['main'] as String,
+        'WeatherId': data['current']['weather'][0]['id'] as int,
+        'Icon': data['current']['weather'][0]['icon'] as String,
       },
       hourlyWeather: data['hourly'] as List<dynamic>,
       weatherConditions: {
@@ -237,8 +268,9 @@ class Weather extends StateNotifier<WeatherModel> {
   Future<List<String>> getCitySuggestions(String query) async {
     if (query.length < 2) return [];
     try {
-      final List<Location> locations = await locationFromAddress(query)
-          .timeout(const Duration(seconds: 10));
+      final List<Location> locations = await locationFromAddress(
+        query,
+      ).timeout(const Duration(seconds: 10));
       final List<String> suggestions = [];
       for (var loc in locations.take(5)) {
         final List<Placemark> places = await placemarkFromCoordinates(
@@ -247,9 +279,11 @@ class Weather extends StateNotifier<WeatherModel> {
         );
         if (places.isNotEmpty) {
           final place = places.first;
-          final name = [place.locality, place.administrativeArea, place.country]
-              .where((e) => e != null && e.isNotEmpty)
-              .join(', ');
+          final name = [
+            place.locality,
+            place.administrativeArea,
+            place.country,
+          ].where((e) => e != null && e.isNotEmpty).join(', ');
           if (name.isNotEmpty && !suggestions.contains(name)) {
             suggestions.add(name);
           }
@@ -262,11 +296,14 @@ class Weather extends StateNotifier<WeatherModel> {
   }
 
   Future<Position> _getLiveLocation() async {
-    final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) throw Exception('Location services are disabled.');
+    final bool serviceEnabled =
+        await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled)
+      throw Exception('Location services are disabled.');
 
     for (int attempt = 1; attempt <= _maxRetries; attempt++) {
-      LocationPermission permission = await Geolocator.checkPermission();
+      LocationPermission permission =
+          await Geolocator.checkPermission();
       if (permission == LocationPermission.deniedForever) {
         throw Exception('Location permission permanently denied.');
       }
@@ -276,25 +313,32 @@ class Weather extends StateNotifier<WeatherModel> {
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
         return await Geolocator.getCurrentPosition(
-          locationSettings: AndroidSettings(accuracy: LocationAccuracy.high),
+          locationSettings: AndroidSettings(
+            accuracy: LocationAccuracy.high,
+          ),
         );
       }
       if (attempt < _maxRetries) {
         await Future.delayed(const Duration(seconds: 1));
       }
     }
-    throw Exception('Location permission denied after $_maxRetries attempts.');
+    throw Exception(
+      'Location permission denied after $_maxRetries attempts.',
+    );
   }
 
   void toggleUnit() {
-    state = state.copyWith(tempUnit: state.tempUnit == 'C' ? 'F' : 'C');
+    state = state.copyWith(
+      tempUnit: state.tempUnit == 'C' ? 'F' : 'C',
+    );
   }
 
   Future<void> clearData() async {
-  await _db.clearAll();
-  state = WeatherModel(isLoading: false);
-}
+    await _db.clearAll();
+    state = WeatherModel(isLoading: false);
+  }
 }
 
-final weatherProvider =
-    StateNotifierProvider<Weather, WeatherModel>((ref) => Weather());
+final weatherProvider = StateNotifierProvider<Weather, WeatherModel>(
+  (ref) => Weather(),
+);
