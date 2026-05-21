@@ -14,7 +14,7 @@ class Weather extends StateNotifier<WeatherModel> {
     fetchWeather();
   }
 
-  final String apiKey = dotenv.env['apiKey'] ?? 'key Not found';
+  final String apiKey = dotenv.env['openWeathreApiKey'] ?? 'key Not found';
   static const int _maxRetries = 3;
   final DbHelper _db = DbHelper.instance;
 
