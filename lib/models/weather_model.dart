@@ -24,7 +24,7 @@ class WeatherModel {
   final DateTime? lastUpdated;
 
   WeatherModel copyWith({
-    Map<String, dynamic>? weatherData,
+    Map<String, dynamic>? currentWeatherData,
     List<dynamic>? hourlyWeather,
     List<dynamic>? weeklyWeather,
     bool? isLoading,
@@ -36,7 +36,7 @@ class WeatherModel {
     Object? lastUpdated = _sentinel,
   }) {
     return WeatherModel(
-      currentWeather: weatherData ?? this.currentWeather,
+      currentWeather: currentWeatherData ?? this.currentWeather,
       hourlyWeather: hourlyWeather ?? this.hourlyWeather,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage == _sentinel

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 class ChatMessageBubble extends StatelessWidget {
-  const ChatMessageBubble({super.key, required this.child})
-    : isUser = true;
+  const ChatMessageBubble({
+    super.key,
+    required this.child,
+    required this.isUser,
+  });
   final String child;
   final bool isUser;
 

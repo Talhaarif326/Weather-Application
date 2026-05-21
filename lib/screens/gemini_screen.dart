@@ -1,21 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weather/providers/weather_provider.dart';
 
 import 'package:weather/widgets/chat_message_bubble.dart';
 
-class GeminiScreen extends StatefulWidget {
+class GeminiScreen extends ConsumerStatefulWidget {
   const GeminiScreen({super.key});
 
   @override
-  State<GeminiScreen> createState() => _GeminiScreenState();
+  ConsumerState<GeminiScreen> createState() => _GeminiScreenState();
 }
 
-class _GeminiScreenState extends State<GeminiScreen> {
+class _GeminiScreenState extends ConsumerState<GeminiScreen> {
   TextEditingController controller = TextEditingController();
-  List<String> messages = [];
+  List<Map<String, dynamic>> messages = [];
+  Candidates? response;
+  String? geminiResponse;
 
-  void sendMessage(String text) {
+  void sendMessage(String text) async {
+    final fullWeatherContext = {
+      "current Weather ": ref.watch(weatherProvider).currentWeather,
+      "hourly weather ": ref.watch(weatherProvider).hourlyWeather,
+      "weeklyWeather": ref.watch(weatherProvider).weeklyWeather,
+    };
+    final gemini = Gemini.instance;
+    try {
+      response = await gemini.chat(
+        [
+          Content(parts: [Part.text(text)]),
+        ],
+        systemPrompt:
+            '''
+            You are a helpful weather assistant.
+
+            Here is the current weather data: $fullWeatherContext 
+            Instructions:
+              - Answer questions based on this data only.
+              - Be conversational and friendly.
+              - Convert technical values to human language.
+              - If asked something not in the data, say you dont have that information. ''',
+      );
+      setState(() {
+        messages.add({"sender": "user", "message": text});
+      });
+    } catch (e) {
+      AlertDialog(content: Text("$e"));
+    }
+    if (response?.output == null) {
+      return;
+    }
+    geminiResponse = response?.output;
     setState(() {
-      messages.add(text);
+      messages.add({"sender": "gemini", "message": geminiResponse});
     });
   }
 
@@ -35,7 +72,27 @@ class _GeminiScreenState extends State<GeminiScreen> {
             child: ListView.builder(
               itemCount: messages.length,
               itemBuilder: (context, index) {
-                return ChatMessageBubble(child: messages[index]);
+                final messageMap = messages[index];
+                final sender = messageMap["sender"];
+                final message = messageMap["message"];
+
+                if (geminiResponse == null) {
+                  return Text('Reponse Error');
+                }
+
+                if (sender == "user") {
+                  return ChatMessageBubble(
+                    child: message,
+                    isUser: true,
+                  );
+                }
+                if (sender == "gemini") {
+                  return ChatMessageBubble(
+                    child: message,
+                    isUser: false,
+                  );
+                }
+                return SizedBox.shrink();
               },
             ),
           ),

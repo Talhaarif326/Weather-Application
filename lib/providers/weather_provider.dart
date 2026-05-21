@@ -242,7 +242,7 @@ class Weather extends StateNotifier<WeatherModel> {
       isLoading: false,
       isOffline: isOffline,
       lastUpdated: lastUpdated ?? DateTime.now(),
-      weatherData: {
+      currentWeatherData: {
         'Name': cityName,
         'Temp': (data['current']['temp'] as num).toDouble(),
         'FeelsLike': (data['current']['feels_like'] as num)
