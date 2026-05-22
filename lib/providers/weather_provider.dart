@@ -14,7 +14,8 @@ class Weather extends StateNotifier<WeatherModel> {
     fetchWeather();
   }
 
-  final String apiKey = dotenv.env['openWeathreApiKey'] ?? 'key Not found';
+  final String apiKey =
+      dotenv.env['openWeathreApiKey'] ?? 'key Not found';
   static const int _maxRetries = 3;
   final DbHelper _db = DbHelper.instance;
 
@@ -242,7 +243,7 @@ class Weather extends StateNotifier<WeatherModel> {
       isLoading: false,
       isOffline: isOffline,
       lastUpdated: lastUpdated ?? DateTime.now(),
-      currentWeatherData: {
+      currentWeather: {
         'Name': cityName,
         'Temp': (data['current']['temp'] as num).toDouble(),
         'FeelsLike': (data['current']['feels_like'] as num)

@@ -17,43 +17,58 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
   List<Map<String, dynamic>> messages = [];
   Candidates? response;
   String? geminiResponse;
+  bool isContextSend = false;
+  List<Content> chatHistory = [];
 
-  void sendMessage(String text) async {
-    final fullWeatherContext = {
-      "current Weather ": ref.watch(weatherProvider).currentWeather,
-      "hourly weather ": ref.watch(weatherProvider).hourlyWeather,
-      "weeklyWeather": ref.watch(weatherProvider).weeklyWeather,
-    };
-    final gemini = Gemini.instance;
-    try {
-      response = await gemini.chat(
-        [
-          Content(parts: [Part.text(text)]),
-        ],
-        systemPrompt:
-            '''
-            You are a helpful weather assistant.
-
-            Here is the current weather data: $fullWeatherContext 
-            Instructions:
-              - Answer questions based on this data only.
-              - Be conversational and friendly.
-              - Convert technical values to human language.
-              - If asked something not in the data, say you dont have that information. ''',
-      );
-      setState(() {
-        messages.add({"sender": "user", "message": text});
-      });
-    } catch (e) {
-      AlertDialog(content: Text("$e"));
-    }
-    if (response?.output == null) {
+  void sendMessage(
+    String text,
+    Map<String, dynamic> currentWeather,
+    List<dynamic> hourlyWeather,
+    List<dynamic> weeklyweather,
+  ) async {
+    if (text.trim().isEmpty) {
       return;
     }
-    geminiResponse = response?.output;
+
+    final gemini = Gemini.instance;
+
     setState(() {
-      messages.add({"sender": "gemini", "message": geminiResponse});
+      messages.add({"sender": "user", "message": text});
     });
+    chatHistory.add(Content(parts: [Part.text(text)], role: "user"));
+    try {
+      Map<String, dynamic> finalGeminiPrompt = {"Question": text};
+      final fullWeatherContext = {
+        "currentWeather":currentWeather,
+        "hourlyWeather":hourlyWeather,
+        "weeklyWeather": weeklyweather,
+      };
+      if (!isContextSend) {
+        finalGeminiPrompt = {
+          "Question": text,
+          "Context": fullWeatherContext,
+        };
+        isContextSend = true;
+      }
+      print(
+        " weekly weather ${fullWeatherContext['weeklyWeather']}",
+      );
+
+      response = await gemini.chat(
+        chatHistory,
+        systemPrompt:
+            'You are a strict weather assistant. Continue answering questions based ONLY on the weather data provided. $finalGeminiPrompt',
+      );
+      final reply = response?.output ?? 'No response';
+      setState(() {
+        messages.add({"sender": "gemini", "message": reply});
+      });
+      chatHistory.add(
+        Content(parts: [Part.text(reply)], role: "model"),
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -64,6 +79,9 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentWeather = ref.watch(weatherProvider).currentWeather;
+    final hourlyWeather = ref.watch(weatherProvider).hourlyWeather;
+    final weeklyweather = ref.watch(weatherProvider).weeklyWeather;
     return Scaffold(
       appBar: AppBar(),
       body: Column(
@@ -75,10 +93,6 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
                 final messageMap = messages[index];
                 final sender = messageMap["sender"];
                 final message = messageMap["message"];
-
-                if (geminiResponse == null) {
-                  return Text('Reponse Error');
-                }
 
                 if (sender == "user") {
                   return ChatMessageBubble(
@@ -122,7 +136,12 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
                 ),
                 IconButton(
                   onPressed: () {
-                    sendMessage(controller.text);
+                    sendMessage(
+                      controller.text,
+                      currentWeather,
+                      hourlyWeather,
+                      weeklyweather,
+                    );
                     controller.clear();
                   },
                   icon: Icon(
