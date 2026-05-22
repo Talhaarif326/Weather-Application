@@ -19,6 +19,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
   String? geminiResponse;
   bool isContextSend = false;
   List<Content> chatHistory = [];
+  final ScrollController _scrollController = ScrollController();
 
   void sendMessage(
     String text,
@@ -35,12 +36,13 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
     setState(() {
       messages.add({"sender": "user", "message": text});
     });
+    _scrollToBottom();
     chatHistory.add(Content(parts: [Part.text(text)], role: "user"));
     try {
       Map<String, dynamic> finalGeminiPrompt = {"Question": text};
       final fullWeatherContext = {
-        "currentWeather":currentWeather,
-        "hourlyWeather":hourlyWeather,
+        "currentWeather": currentWeather,
+        "hourlyWeather": hourlyWeather,
         "weeklyWeather": weeklyweather,
       };
       if (!isContextSend) {
@@ -50,10 +52,6 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
         };
         isContextSend = true;
       }
-      print(
-        " weekly weather ${fullWeatherContext['weeklyWeather']}",
-      );
-
       response = await gemini.chat(
         chatHistory,
         systemPrompt:
@@ -63,17 +61,37 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
       setState(() {
         messages.add({"sender": "gemini", "message": reply});
       });
+      _scrollToBottom();
       chatHistory.add(
         Content(parts: [Part.text(reply)], role: "model"),
       );
     } catch (e) {
       print(e);
+      setState(() {
+        messages.add({
+          "sender": "gemini",
+          "message":
+              "Too many requests, please wait a moment and try again.",
+        });
+      });
+      _scrollToBottom();
     }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      ),
+    );
   }
 
   @override
   void dispose() {
     controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -88,6 +106,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final messageMap = messages[index];
