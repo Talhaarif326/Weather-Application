@@ -5,7 +5,12 @@ import 'package:weather/providers/weather_provider.dart';
 import 'package:weather/widgets/chat_message_bubble.dart';
 
 class GeminiScreen extends ConsumerStatefulWidget {
-  const GeminiScreen({super.key});
+  const GeminiScreen({
+    super.key,
+    required this.isClickedFromOtherScreen,
+  });
+
+  final bool isClickedFromOtherScreen;
 
   @override
   ConsumerState<GeminiScreen> createState() => _GeminiScreenState();
@@ -18,6 +23,17 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
   bool isContextSend = false;
   List<Content> chatHistory = [];
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.isClickedFromOtherScreen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        autoSend();
+      });
+    }
+  }
 
   void sendMessage(
     String text,
@@ -81,6 +97,19 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
     );
   }
 
+  void autoSend() {
+    final weatherForAutoSend = ref.read(weatherProvider);
+
+    controller.text = "Give me a summary of today's weather";
+    sendMessage(
+      controller.text,
+      weatherForAutoSend.currentWeather,
+      weatherForAutoSend.hourlyWeather,
+      weatherForAutoSend.weeklyWeather,
+    );
+    controller.clear();
+  }
+
   @override
   void dispose() {
     controller.dispose();
@@ -117,8 +146,6 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              
-
               // ← message list
               Expanded(
                 child: messages.isEmpty
@@ -157,7 +184,6 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
                           final messageMap = messages[index];
                           final sender = messageMap["sender"];
                           final message = messageMap["message"];
-
                           return ChatMessageBubble(
                             child: message,
                             isUser: sender == "user",

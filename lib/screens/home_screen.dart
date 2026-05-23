@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:weather/providers/weather_provider.dart';
+import 'package:weather/screens/gemini_screen.dart';
 import 'package:weather/utils/lottie_helper.dart';
 import 'package:weather/utils/weather_summary_builder.dart';
 
@@ -413,24 +414,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 height: availableHeight * 0.02,
                               ),
                               // weather summary tile
-                              ListTile(
-                                leading: const Icon(
-                                  Icons.info_outline,
-                                  color: Colors.white70,
-                                  size: 20,
-                                ),
-                                title: Text(
-                                  WeatherSummaryBuilder.build(
-                                    weatherDate.weeklyWeather[0],
-                                  ),
-                                  style: TextStyle(
+                              GestureDetector(
+                                onTap: () =>
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return GeminiScreen(isClickedFromOtherScreen: true,);
+                                        },
+                                      ),
+                                    ),
+                                child: ListTile(
+                                  leading: const Icon(
+                                    Icons.info_outline,
                                     color: Colors.white70,
-                                    fontSize: 12,
+                                    size: 20,
                                   ),
-                                ),
+                                  title: Text(
+                                    WeatherSummaryBuilder.build(
+                                      weatherDate.weeklyWeather[0],
+                                    ),
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
 
-                                dense: true,
-                                contentPadding: EdgeInsets.zero,
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
                               ),
 
                               // Main weather card — keeps local asset background

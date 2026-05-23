@@ -26,7 +26,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(name: myName),
     WeatherScreen(name: myName),
     SettingScreen(),
-    GeminiScreen(),
+    GeminiScreen(isClickedFromOtherScreen: false),
   ];
 
   @override
