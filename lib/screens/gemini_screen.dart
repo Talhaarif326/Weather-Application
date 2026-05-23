@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weather/providers/weather_provider.dart';
-
 import 'package:weather/widgets/chat_message_bubble.dart';
 
 class GeminiScreen extends ConsumerStatefulWidget {
@@ -16,7 +15,6 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
   TextEditingController controller = TextEditingController();
   List<Map<String, dynamic>> messages = [];
   Candidates? response;
-  String? geminiResponse;
   bool isContextSend = false;
   List<Content> chatHistory = [];
   final ScrollController _scrollController = ScrollController();
@@ -27,9 +25,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
     List<dynamic> hourlyWeather,
     List<dynamic> weeklyweather,
   ) async {
-    if (text.trim().isEmpty) {
-      return;
-    }
+    if (text.trim().isEmpty) return;
 
     final gemini = Gemini.instance;
 
@@ -38,6 +34,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
     });
     _scrollToBottom();
     chatHistory.add(Content(parts: [Part.text(text)], role: "user"));
+
     try {
       Map<String, dynamic> finalGeminiPrompt = {"Question": text};
       final fullWeatherContext = {
@@ -52,6 +49,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
         };
         isContextSend = true;
       }
+
       response = await gemini.chat(
         chatHistory,
         systemPrompt:
@@ -66,13 +64,8 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
         Content(parts: [Part.text(reply)], role: "model"),
       );
     } catch (e) {
-      print(e);
       setState(() {
-        messages.add({
-          "sender": "gemini",
-          "message":
-              "Too many requests, please wait a moment and try again.",
-        });
+        messages.add({"sender": "gemini", "message": e.toString()});
       });
       _scrollToBottom();
     }
@@ -82,7 +75,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       ),
     );
@@ -100,79 +93,147 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
     final currentWeather = ref.watch(weatherProvider).currentWeather;
     final hourlyWeather = ref.watch(weatherProvider).hourlyWeather;
     final weeklyweather = ref.watch(weatherProvider).weeklyWeather;
+
     return Scaffold(
-      appBar: AppBar(),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final messageMap = messages[index];
-                final sender = messageMap["sender"];
-                final message = messageMap["message"];
-
-                if (sender == "user") {
-                  return ChatMessageBubble(
-                    child: message,
-                    isUser: true,
-                  );
-                }
-                if (sender == "gemini") {
-                  return ChatMessageBubble(
-                    child: message,
-                    isUser: false,
-                  );
-                }
-                return SizedBox.shrink();
-              },
-            ),
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(
+          'Weather Assistant',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF4A90E2),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Container(
+        // ← same gradient as home screen
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF4A90E2), Color(0xFF1B3A6B)],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 50,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    style: TextStyle(color: Colors.white),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              
 
-                    decoration: InputDecoration(
-                      hintText: 'Enter message ...',
-                      hintStyle: TextStyle(color: Colors.white),
-                      contentPadding: EdgeInsets.all(8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
+              // ← message list
+              Expanded(
+                child: messages.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.wb_cloudy_outlined,
+                              size: 64,
+                              color: Colors.white.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Ask me anything about\nyour weather',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white.withValues(
+                                  alpha: 0.5,
+                                ),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                        ),
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final messageMap = messages[index];
+                          final sender = messageMap["sender"];
+                          final message = messageMap["message"];
+
+                          return ChatMessageBubble(
+                            child: message,
+                            isUser: sender == "user",
+                          );
+                        },
+                      ),
+              ),
+
+              // ← input bar — glass style matching home screen
+              Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Ask about your weather...',
+                          hintStyle: TextStyle(
+                            color: Colors.white.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: () {
+                        sendMessage(
+                          controller.text,
+                          currentWeather,
+                          hourlyWeather,
+                          weeklyweather,
+                        );
+                        controller.clear();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(
+                              alpha: 0.3,
+                            ),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.send,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  onPressed: () {
-                    sendMessage(
-                      controller.text,
-                      currentWeather,
-                      hourlyWeather,
-                      weeklyweather,
-                    );
-                    controller.clear();
-                  },
-                  icon: Icon(
-                    Icons.send,
-                    color: Colors.white,
-                    size: 26,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
