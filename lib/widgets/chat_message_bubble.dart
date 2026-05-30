@@ -13,18 +13,28 @@ class ChatMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isUser
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        margin: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 6,
+        ),
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
         child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 4, left: 4, right: 4),
+              padding: const EdgeInsets.only(
+                bottom: 4,
+                left: 4,
+                right: 4,
+              ),
               child: Text(
                 isUser ? 'You' : 'Gemini',
                 style: TextStyle(
@@ -38,8 +48,12 @@ class ChatMessageBubble extends StatelessWidget {
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(16),
                 topRight: const Radius.circular(16),
-                bottomLeft: isUser ? const Radius.circular(16) : Radius.zero,
-                bottomRight: isUser ? Radius.zero : const Radius.circular(16),
+                bottomLeft: isUser
+                    ? const Radius.circular(16)
+                    : Radius.zero,
+                bottomRight: isUser
+                    ? Radius.zero
+                    : const Radius.circular(16),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -55,10 +69,12 @@ class ChatMessageBubble extends StatelessWidget {
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(16),
                       topRight: const Radius.circular(16),
-                      bottomLeft:
-                          isUser ? const Radius.circular(16) : Radius.zero,
-                      bottomRight:
-                          isUser ? Radius.zero : const Radius.circular(16),
+                      bottomLeft: isUser
+                          ? const Radius.circular(16)
+                          : Radius.zero,
+                      bottomRight: isUser
+                          ? Radius.zero
+                          : const Radius.circular(16),
                     ),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.2),

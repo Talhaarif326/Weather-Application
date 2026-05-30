@@ -47,7 +47,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
 
     setState(() {
       messages.add({"sender": "user", "message": text});
-    });
+        });
     _scrollToBottom();
     chatHistory.add(Content(parts: [Part.text(text)], role: "user"));
 
@@ -69,7 +69,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
       response = await gemini.chat(
         chatHistory,
         systemPrompt:
-            'You are a strict weather assistant. Continue answering questions based ONLY on the weather data provided. $finalGeminiPrompt',
+            'You are a strict weather assistant. Continue answering questions based ONLY on the weather data provided. $finalGeminiPrompt , in the units like degress, and km/s .',
       );
       final reply = response?.output ?? 'No response';
       setState(() {
@@ -184,6 +184,7 @@ class _GeminiScreenState extends ConsumerState<GeminiScreen> {
                           final messageMap = messages[index];
                           final sender = messageMap["sender"];
                           final message = messageMap["message"];
+
                           return ChatMessageBubble(
                             child: message,
                             isUser: sender == "user",
