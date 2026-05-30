@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:weather/database/db_helper.dart';
@@ -51,6 +52,9 @@ Future<void> main() async {
   );
 
   final String? savedName = await DbHelper.instance.getUser();
+   Gemini.init(
+    apiKey: dotenv.env['geminiApiKey'] ?? 'key Not found',
+  );
 
   runApp(
     ProviderScope(
